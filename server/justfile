@@ -1,0 +1,42 @@
+set export
+set dotenv-load
+
+PORT := "8080"
+
+# List available commands
+default:
+    just --list --unsorted
+
+# Run server in dev mode
+dev: prepare
+    #!/bin/zsh
+
+    export DEBUG="true"
+
+    pnpm run dev
+
+# Type check
+type-check:
+    pnpm run type-check
+
+# Lint code
+lint: type-check
+    pnpm run lint
+
+# Lint and fix any issues that can be fixed automatically
+lint-fix: type-check
+    pnpm run lint-fix
+
+# Install modules
+install-modules:
+    #!/bin/zsh
+
+    . ~/.zshrc
+
+    pnpm i
+
+# Prepare project to work with
+prepare: install-modules
+
+# Bootstrap project
+bootstrap: prepare
