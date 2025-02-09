@@ -19,12 +19,20 @@ export const ERROR_STATUS_CODES = {
   INTERNAL_SERVER_ERROR: 500,
 } as const;
 
-export type StatusCode = GetRecordValues<typeof STATUS_CODES>;
+export type ContentfulStatusCode = GetRecordValues<
+  typeof CONTENTFUL_STATUS_CODES
+>;
 
-export const STATUS_CODES = {
+export const CONTENTFUL_STATUS_CODES = {
   ...ERROR_STATUS_CODES,
   OK: 200,
   CREATED: 201,
+} as const;
+
+export type StatusCode = GetRecordValues<typeof STATUS_CODES>;
+
+export const STATUS_CODES = {
+  ...CONTENTFUL_STATUS_CODES,
   NO_CONTENT: 204,
   NOT_MODIFIED: 304,
 } as const;

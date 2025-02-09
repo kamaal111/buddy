@@ -6,9 +6,9 @@
   "configurations": [
     {
       "type": "node-terminal",
-      "name": "Run Script: dev",
+      "name": "Run Script: dev server",
       "request": "launch",
-      "command": "just dev",
+      "command": "just dev-server",
       "cwd": "${workspaceFolder}"
     }
   ]

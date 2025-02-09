@@ -27,3 +27,9 @@ export class InvalidPayload extends APIException {
     this.validationError = validationError;
   }
 }
+
+export class NotFound extends APIException {
+  constructor(c: Context<HonoEnvironment>) {
+    super(c, ERROR_STATUS_CODES.NOT_FOUND, { message: 'Not Found' });
+  }
+}
