@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import BuddyClient
 
 struct ContentView: View {
     var body: some View {
@@ -14,6 +15,15 @@ struct ContentView: View {
                 .imageScale(.large)
                 .foregroundStyle(.tint)
             Text("Hello, world!")
+            Button(action: {
+                let client = BuddyClient()
+                Task {
+                    let result = await client.health.ping()
+                    print(result)
+                }
+            }) {
+                Text("Action")
+            }
         }
         .padding()
     }

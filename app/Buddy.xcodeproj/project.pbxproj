@@ -6,11 +6,20 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		2C560CB92D594A0F00EB85D6 /* BuddyClient in Frameworks */ = {isa = PBXBuildFile; productRef = 2C560CB82D594A0F00EB85D6 /* BuddyClient */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		2C9B52822D59273A00FCCDE9 /* Buddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Buddy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		2C01E78C2D59458B006F5564 /* Modules */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Modules;
+			sourceTree = "<group>";
+		};
 		2C9B52842D59273A00FCCDE9 /* Buddy */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Buddy;
@@ -23,16 +32,26 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2C560CB92D594A0F00EB85D6 /* BuddyClient in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2C560CB72D594A0F00EB85D6 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		2C9B52792D59273A00FCCDE9 = {
 			isa = PBXGroup;
 			children = (
+				2C01E78C2D59458B006F5564 /* Modules */,
 				2C9B52842D59273A00FCCDE9 /* Buddy */,
+				2C560CB72D594A0F00EB85D6 /* Frameworks */,
 				2C9B52832D59273A00FCCDE9 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -61,10 +80,12 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				2C01E78C2D59458B006F5564 /* Modules */,
 				2C9B52842D59273A00FCCDE9 /* Buddy */,
 			);
 			name = Buddy;
 			packageProductDependencies = (
+				2C560CB82D594A0F00EB85D6 /* BuddyClient */,
 			);
 			productName = Buddy;
 			productReference = 2C9B52822D59273A00FCCDE9 /* Buddy.app */;
@@ -339,6 +360,13 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2C560CB82D594A0F00EB85D6 /* BuddyClient */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = BuddyClient;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2C9B527A2D59273A00FCCDE9 /* Project object */;
 }

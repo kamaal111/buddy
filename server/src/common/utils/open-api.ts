@@ -26,7 +26,7 @@ export function withOpenAPIDocumentation<
   return (app as OpenAPIHono<E, S, BasePath>)
     .doc('/spec.json', {
       openapi: '3.0.0',
-      info: { version: '1.0.0', title: 'Market API' },
+      info: { version: '1.0.0', title: 'Buddy API' },
     })
     .get('/doc', swaggerUI({ url: '/spec.json' }));
 }
