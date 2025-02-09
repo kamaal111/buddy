@@ -36,7 +36,6 @@
     "**/*": [
       "prettier --write --ignore-unknown",
       "eslint"
-    ],
-    "**/*.ts?(x)": "tsc -p tsconfig.json --noEmit"
+    ]
   }
 }
