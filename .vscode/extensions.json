@@ -1,0 +1,13 @@
+{
+  "recommendations": [
+    "skellock.just",
+    "streetsidesoftware.code-spell-checker",
+    "redhat.vscode-yaml",
+    "ms-azuretools.vscode-docker",
+    "eamodio.gitlens",
+    "aaron-bond.better-comments",
+    "naumovs.color-highlight",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint"
+  ]
+}
