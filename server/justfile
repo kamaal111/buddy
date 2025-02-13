@@ -1,5 +1,4 @@
 set export
-set dotenv-load
 
 PORT := "8080"
 
@@ -8,24 +7,10 @@ default:
     just --list --unsorted
 
 # Run server in dev mode
-dev: prepare
+dev:
     #!/bin/zsh
 
-    export DEBUG="true"
-
-    pnpm run dev
-
-# Type check
-type-check:
-    pnpm run type-check
-
-# Lint code
-lint: type-check
-    pnpm run lint
-
-# Lint and fix any issues that can be fixed automatically
-lint-fix: type-check
-    pnpm run lint-fix
+    uv run uvicorn src.buddy.main:app --host 0.0.0.0 --port $PORT
 
 # Install modules
 install-modules:
@@ -33,10 +18,36 @@ install-modules:
 
     . ~/.zshrc
 
-    pnpm i
+    uv sync
+
+# Type check
+type-check:
+    uv run mypy .
+
+# Format code
+format:
+    uv run ruff format .
+
+# Lint code
+lint:
+    uv run ruff check .
+
+# Lint and fix any issues that can be fixed automatically
+lint-fix:
+    uv run ruff check . --fix
 
 # Prepare project to work with
 prepare: install-modules
 
 # Bootstrap project
-bootstrap: prepare
+bootstrap: install-uv prepare
+
+[private]
+install-uv:
+    #!/bin/zsh
+
+    if ! which uv > /dev/null
+    then
+        echo "Installing uv"
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+    fi

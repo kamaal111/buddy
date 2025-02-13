@@ -13,6 +13,7 @@ fpath+=${ZSH_CUSTOM:-${ZSH:-~/.oh-my-zsh}/custom}/plugins/zsh-completions/src
 . $ZSH/oh-my-zsh.sh
 . "$HOME/.atuin/bin/env"
 . "$HOME/.cargo/env"
+. $HOME/.local/bin/env | true
 
 eval "$(atuin init zsh)"
 
