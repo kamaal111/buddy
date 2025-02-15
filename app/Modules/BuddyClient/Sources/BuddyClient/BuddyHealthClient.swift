@@ -15,14 +15,14 @@ public struct BuddyHealthClient: Sendable {
     }
 
     public func ping() async -> Result<PingResponse, BuddyHealthPingErrors> {
-        let result: Operations.GetHealthPing.Output
+        let result: Operations.PingHealthPingGet.Output
         do {
-            result = try await client.getHealthPing()
+            result = try await client.pingHealthPingGet()
         } catch {
             return .failure(.internalServerError(context: error))
         }
 
-        let data: Operations.GetHealthPing.Output.Ok.Body.JsonPayload
+        let data: Components.Schemas.PingResponse
         switch result {
         case .ok(let okResponse):
             switch okResponse.body {

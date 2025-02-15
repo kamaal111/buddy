@@ -1,39 +1,160 @@
 {
-    "components": {
-        "parameters": {},
-        "schemas": {}
-    },
+    "openapi": "3.1.0",
     "info": {
-        "title": "Buddy API",
-        "version": "1.0.0"
+        "title": "FastAPI",
+        "version": "0.1.0"
     },
-    "openapi": "3.0.0",
     "paths": {
         "/health/ping": {
             "get": {
+                "summary": "Ping",
+                "operationId": "ping_health_ping_get",
                 "responses": {
                     "200": {
+                        "description": "Successful Response",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "details": {
-                                            "enum": [
-                                                "PONG"
-                                            ],
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "details"
-                                    ],
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/PingResponse"
                                 }
                             }
-                        },
-                        "description": "Ping server"
+                        }
                     }
                 }
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "summary": "Register",
+                "operationId": "register_auth_register_post",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Body_register_auth_register_post"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RegisterResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Body_register_auth_register_post": {
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "title": "Email"
+                    },
+                    "password": {
+                        "type": "string",
+                        "title": "Password"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "email",
+                    "password"
+                ],
+                "title": "Body_register_auth_register_post"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "PingResponse": {
+                "properties": {
+                    "details": {
+                        "type": "string",
+                        "const": "PONG",
+                        "title": "Details"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "details"
+                ],
+                "title": "PingResponse"
+            },
+            "RegisterResponse": {
+                "properties": {
+                    "details": {
+                        "type": "string",
+                        "title": "Details"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "details"
+                ],
+                "title": "RegisterResponse"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
             }
         }
     }

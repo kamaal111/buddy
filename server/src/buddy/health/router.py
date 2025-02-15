@@ -1,9 +1,15 @@
-from fastapi import APIRouter
+from typing import Literal
 
+from fastapi import APIRouter
+from pydantic import BaseModel
 
 health_router = APIRouter(prefix="/health")
 
 
+class PingResponse(BaseModel):
+    details: Literal["PONG"]
+
+
 @health_router.get("/ping")
-async def ping():
-    return {"message": "PONG"}
+async def ping() -> PingResponse:
+    return PingResponse(details="PONG")
