@@ -1,6 +1,7 @@
 set export
 
 PORT := "8080"
+DATABASE_URL := "sqlite:///database.db"
 
 # List available commands
 default:
