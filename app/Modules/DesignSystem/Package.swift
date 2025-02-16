@@ -5,11 +5,12 @@ import PackageDescription
 
 let package = Package(
     name: "DesignSystem",
+    defaultLocalization: "en",
     platforms: [.macOS(.v14)],
     products: [
         .library(name: "DesignSystem", targets: ["DesignSystem"]),
     ],
     targets: [
-        .target(name: "DesignSystem"),
+        .target(name: "DesignSystem", resources: [.process("Resources/Assets.xcassets")]),
     ]
 )

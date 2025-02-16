@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2C3658052D615FAE00387C54 /* Chat in Frameworks */ = {isa = PBXBuildFile; productRef = 2C3658042D615FAE00387C54 /* Chat */; };
-		2C560CB92D594A0F00EB85D6 /* BuddyClient in Frameworks */ = {isa = PBXBuildFile; productRef = 2C560CB82D594A0F00EB85D6 /* BuddyClient */; };
+		2C3658082D624DC100387C54 /* Authentication in Frameworks */ = {isa = PBXBuildFile; productRef = 2C3658072D624DC100387C54 /* Authentication */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,8 +47,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2C3658082D624DC100387C54 /* Authentication in Frameworks */,
 				2C3658052D615FAE00387C54 /* Chat in Frameworks */,
-				2C560CB92D594A0F00EB85D6 /* BuddyClient in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -101,8 +101,8 @@
 			);
 			name = Buddy;
 			packageProductDependencies = (
-				2C560CB82D594A0F00EB85D6 /* BuddyClient */,
 				2C3658042D615FAE00387C54 /* Chat */,
+				2C3658072D624DC100387C54 /* Authentication */,
 			);
 			productName = Buddy;
 			productReference = 2C9B52822D59273A00FCCDE9 /* Buddy.app */;
@@ -385,9 +385,9 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = Chat;
 		};
-		2C560CB82D594A0F00EB85D6 /* BuddyClient */ = {
+		2C3658072D624DC100387C54 /* Authentication */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = BuddyClient;
+			productName = Authentication;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -9,11 +9,14 @@ let package = Package(
     platforms: [.macOS(.v14)],
     products: [
         .library(name: "Chat", targets: ["Chat"]),
+        .library(name: "Authentication", targets: ["Authentication"]),
     ],
     dependencies: [
         .package(path: "../DesignSystem"),
+        .package(path: "../BuddyClient")
     ],
     targets: [
         .target(name: "Chat", dependencies: ["DesignSystem"]),
+        .target(name: "Authentication", dependencies: ["BuddyClient", "DesignSystem"]),
     ]
 )

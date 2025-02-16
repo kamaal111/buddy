@@ -6,12 +6,16 @@
 //
 
 import SwiftUI
+import Authentication
 
 @main
 struct BuddyApp: App {
+    @State private var authentication = Authentication()
+
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .authenticationEnvironment(authentication: authentication)
         }
     }
 }

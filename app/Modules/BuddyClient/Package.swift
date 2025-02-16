@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "BuddyClient",
-    platforms: [.macOS(.v10_15)],
+    platforms: [.macOS(.v14)],
     products: [
         .library(name: "BuddyClient", targets: ["BuddyClient"]),
     ],
