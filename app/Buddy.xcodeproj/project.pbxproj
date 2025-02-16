@@ -21,6 +21,7 @@
 			membershipExceptions = (
 				DesignSystem,
 				Features,
+				"swift-validator",
 			);
 			target = 2C9B52812D59273A00FCCDE9 /* Buddy */;
 		};

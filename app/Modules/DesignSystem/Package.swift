@@ -10,7 +10,16 @@ let package = Package(
     products: [
         .library(name: "DesignSystem", targets: ["DesignSystem"]),
     ],
+    dependencies: [
+        .package(path: "../swift-validator")
+    ],
     targets: [
-        .target(name: "DesignSystem", resources: [.process("Resources/Assets.xcassets")]),
+        .target(
+            name: "DesignSystem",
+            dependencies: [
+                .product(name: "SwiftValidator", package: "swift-validator")
+            ],
+            resources: [.process("Resources/Assets.xcassets")]
+        ),
     ]
 )

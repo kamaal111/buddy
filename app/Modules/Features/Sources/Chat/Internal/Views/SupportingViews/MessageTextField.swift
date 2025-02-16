@@ -16,7 +16,7 @@ struct MessageTextField: View {
     let onSubmit: (_ message: String) async -> Bool
 
     var body: some View {
-        AppTextField(text: $message, title: NSLocalizedString("Message Buddy", comment: ""))
+        AppTextField(text: $message, localizedTitle: "Message Buddy", bundle: .module)
             .onSubmit(handleSubmit)
             .disabled(isDisabled)
     }

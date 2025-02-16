@@ -1,7 +1,22 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Email" : {
+
+    },
+    "Login" : {
+
+    },
     "Login Hello, World!" : {
+
+    },
+    "Not an valid email" : {
+
+    },
+    "Password" : {
+
+    },
+    "Password must be atleast 5 characters" : {
 
     }
   },
