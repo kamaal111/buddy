@@ -19,6 +19,7 @@
 		2C3658032D615EFD00387C54 /* Exceptions for "Modules" folder in "Buddy" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				DesignSystem,
 				Features,
 			);
 			target = 2C9B52812D59273A00FCCDE9 /* Buddy */;

@@ -4,16 +4,12 @@
 import PackageDescription
 
 let package = Package(
-    name: "Features",
-    defaultLocalization: "en",
+    name: "DesignSystem",
     platforms: [.macOS(.v14)],
     products: [
-        .library(name: "Chat", targets: ["Chat"]),
-    ],
-    dependencies: [
-        .package(path: "../DesignSystem"),
+        .library(name: "DesignSystem", targets: ["DesignSystem"]),
     ],
     targets: [
-        .target(name: "Chat", dependencies: ["DesignSystem"]),
+        .target(name: "DesignSystem"),
     ]
 )
