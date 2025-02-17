@@ -29,8 +29,8 @@ public struct AppTextFieldErrorResult: Equatable {
 public struct AppTextField: View {
     @FocusState private var isFocused: Bool
 
-    @Binding public var text: String
-    @Binding var errorResult: AppTextFieldErrorResult?
+    @Binding private var text: String
+    @Binding private var errorResult: AppTextFieldErrorResult?
 
     public let title: String
     public let textFieldType: TextFieldType
@@ -159,10 +159,10 @@ private struct FloatingFieldWrapper<Field: View>: View {
     @State private var textYOffset: CGFloat
     @State private var textScaleEffect: CGFloat
 
-    let text: String
-    let title: String
-    let error: (show: Bool, message: String?)
-    let field: () -> Field
+    private let text: String
+    private let title: String
+    private let error: (show: Bool, message: String?)
+    private let field: () -> Field
 
     init(
         text: String,
@@ -208,11 +208,12 @@ private struct FloatingFieldWrapper<Field: View>: View {
     }
 
     private var titleHorizontalPadding: CGFloat {
-        if text.isEmpty {
-            return 12
-        }
-
-        return 8
+        let padding: CFloat = if text.isEmpty { 4 } else { 0 }
+        #if os(macOS)
+        return CGFloat(padding) + 8
+        #else
+        return CGFloat(padding)
+        #endif
     }
 
     private func handleOnTextIsEmptyChange(_ oldValue: Bool, _ newValue: Bool) {

@@ -1,13 +1,13 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Continue" : {
+
+    },
+    "Don't have an account yet?" : {
+
+    },
     "Email" : {
-
-    },
-    "Login" : {
-
-    },
-    "Login Hello, World!" : {
 
     },
     "Not an valid email" : {
@@ -17,6 +17,15 @@
 
     },
     "Password must be atleast 5 characters" : {
+
+    },
+    "Sign in" : {
+
+    },
+    "Sign Up" : {
+
+    },
+    "Sign Up Hello, World!" : {
 
     }
   },

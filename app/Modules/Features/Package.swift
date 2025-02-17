@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "Features",
     defaultLocalization: "en",
-    platforms: [.macOS(.v14)],
+    platforms: [.macOS(.v14), .iOS(.v17)],
     products: [
         .library(name: "Chat", targets: ["Chat"]),
         .library(name: "Authentication", targets: ["Authentication"]),

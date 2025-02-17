@@ -1,6 +1,6 @@
 //
 //  Preview.swift
-//  Features
+//  Authentication
 //
 //  Created by Kamaal M Farah on 2/16/25.
 //

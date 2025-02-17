@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "swift-validator",
-    platforms: [.macOS(.v10_13)],
+    platforms: [.macOS(.v10_13), .iOS(.v12)],
     products: [
         .library(name: "SwiftValidator", targets: ["SwiftValidator"]),
     ],
