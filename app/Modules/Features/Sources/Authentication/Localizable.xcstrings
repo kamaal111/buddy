@@ -10,6 +10,9 @@
     "Email" : {
 
     },
+    "Hello sign up" : {
+
+    },
     "Not an valid email" : {
 
     },
@@ -19,13 +22,10 @@
     "Password must be atleast 5 characters" : {
 
     },
-    "Sign in" : {
+    "Sign In" : {
 
     },
     "Sign Up" : {
-
-    },
-    "Sign Up Hello, World!" : {
 
     }
   },

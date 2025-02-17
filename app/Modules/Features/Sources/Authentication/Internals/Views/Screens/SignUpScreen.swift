@@ -20,11 +20,12 @@ struct SignUpScreen: View {
     }
 
     var body: some View {
-        Text("Sign Up Hello, World!")
-            .frame(
-                minWidth: AppConfig.screenMinSize.width + AppSizes.medium,
-                minHeight: AppConfig.screenMinSize.height + AppSizes.medium
-            )
+        FormBox(localizedTitle: "Sign Up", bundle: .module, minSize: AppConfig.screenMinSize) {
+            Text("Hello sign up")
+        }
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+        #endif
     }
 }
 

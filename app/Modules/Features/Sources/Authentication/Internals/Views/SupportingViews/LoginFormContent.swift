@@ -35,6 +35,7 @@ struct LoginFormContent: View {
                 errorResult: $passwordError,
                 localizedTitle: "Password",
                 bundle: .module,
+                variant: .secure,
                 validations: [
                     .minimumLength(
                         length: 5,

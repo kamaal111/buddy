@@ -8,8 +8,6 @@
 import SwiftUI
 import SwiftValidator
 
-private let MACOS_LABEL_HORIZONTAL_PADDING: CGFloat = 8
-
 public enum AppTextFieldValidationRules {
     case minimumLength(length: Int, message: String?)
     case isSameAs(value: String, message: String?)
@@ -26,27 +24,46 @@ public struct AppTextFieldErrorResult: Equatable {
     }
 }
 
+public enum AppTextFieldVariant {
+    case text
+    case decimals
+    case numbers
+    case secure
+
+    #if canImport(UIKit)
+    var keyboardType: UIKeyboardType {
+        switch self {
+        case .decimals: return .decimalPad
+        case .numbers: return .numberPad
+        case .text, .secure: return .default
+        }
+    }
+    #endif
+}
+
 public struct AppTextField: View {
+    @State private var showPassword = false
+
     @FocusState private var isFocused: Bool
 
     @Binding private var text: String
     @Binding private var errorResult: AppTextFieldErrorResult?
 
     public let title: String
-    public let textFieldType: TextFieldType
+    public let variant: AppTextFieldVariant
     public let validations: [any StringValidatableRule]
 
     public init(
         text: Binding<String>,
         errorResult: Binding<AppTextFieldErrorResult?>,
         title: String,
-        textFieldType: TextFieldType = .text,
+        variant: AppTextFieldVariant = .text,
         validations: [AppTextFieldValidationRules]
     ) {
         self._text = text
         self._errorResult = errorResult
         self.title = title
-        self.textFieldType = textFieldType
+        self.variant = variant
         self.validations = validations.map({ validation -> any StringValidatableRule in
             switch validation {
             case let .minimumLength(length, message):
@@ -64,24 +81,24 @@ public struct AppTextField: View {
         errorResult: Binding<AppTextFieldErrorResult?>,
         localizedTitle: LocalizedStringResource,
         bundle: Bundle,
-        textFieldType: TextFieldType = .text,
+        variant: AppTextFieldVariant = .text,
         validations: [AppTextFieldValidationRules]
     ) {
         self.init(
             text: text,
             errorResult: errorResult,
             title: NSLocalizedString(localizedTitle.key, bundle: bundle, comment: ""),
-            textFieldType: textFieldType,
+            variant: variant,
             validations: validations
         )
     }
 
-    public init(text: Binding<String>, title: String, textFieldType: TextFieldType = .text) {
+    public init(text: Binding<String>, title: String, variant: AppTextFieldVariant = .text) {
         self.init(
             text: text,
             errorResult: .constant(nil),
             title: title,
-            textFieldType: textFieldType,
+            variant: variant,
             validations: []
         )
     }
@@ -90,41 +107,43 @@ public struct AppTextField: View {
         text: Binding<String>,
         localizedTitle: LocalizedStringResource,
         bundle: Bundle,
-        textFieldType: TextFieldType = .text
+        variant: AppTextFieldVariant = .text
     ) {
         self.init(
             text: text,
             title: NSLocalizedString(localizedTitle.key, bundle: bundle, comment: ""),
-            textFieldType: textFieldType
+            variant: variant
         )
-    }
-
-    public enum TextFieldType {
-        case text
-        case decimals
-        case numbers
-
-        #if canImport(UIKit)
-        var keyboardType: UIKeyboardType {
-            switch self {
-            case .decimals: return .decimalPad
-            case .numbers: return .numberPad
-            case .text: return .default
-            }
-        }
-        #endif
     }
 
     public var body: some View {
         FloatingFieldWrapper(text: text, title: title, error: textFieldError, field: {
-            #if canImport(UIKit)
-            TextField("", text: $text)
-                .focused($isFocused)
-                .keyboardType(textFieldType.keyboardType)
-            #else
-            TextField("", text: $text)
-                .focused($isFocused)
-            #endif
+            if variant == .secure {
+                HStack {
+                    JustStack {
+                        if showPassword {
+                            TextField("", text: $text)
+                                .focused($isFocused)
+                        } else {
+                            SecureField("", text: $text)
+                                .focused($isFocused)
+                        }
+                    }
+                    .takeWidthEagerly(alignment: .leading)
+                    Image(systemName: !showPassword ? "eye" : "eye.slash")
+                        .foregroundColor(showError ? Color.red : Color.accentColor)
+                        .onTapGesture { handleShowPassword() }
+                }
+            } else {
+                #if canImport(UIKit)
+                TextField("", text: $text)
+                    .focused($isFocused)
+                    .keyboardType(variant.keyboardType)
+                #else
+                TextField("", text: $text)
+                    .focused($isFocused)
+                #endif
+            }
         })
         .onChange(of: text) { oldValue, newValue in handleValueChange(value: newValue) }
     }
@@ -143,6 +162,10 @@ public struct AppTextField: View {
         guard !validations.isEmpty else { return false }
 
         return !isFocused && !text.isEmpty && errorResult?.valid != true
+    }
+
+    private func handleShowPassword() {
+        showPassword.toggle()
     }
 
     private func handleValueChange(value: String) {
@@ -192,9 +215,6 @@ private struct FloatingFieldWrapper<Field: View>: View {
                 Text(message)
                     .font(.caption)
                     .foregroundStyle(Color.red)
-                    #if os(macOS)
-                    .padding(.horizontal, MACOS_LABEL_HORIZONTAL_PADDING)
-                    #endif
                     .takeWidthEagerly(alignment: .leading)
             }
         }
@@ -208,12 +228,7 @@ private struct FloatingFieldWrapper<Field: View>: View {
     }
 
     private var titleHorizontalPadding: CGFloat {
-        let padding: CFloat = if text.isEmpty { 4 } else { 0 }
-        #if os(macOS)
-        return CGFloat(padding) + 8
-        #else
-        return CGFloat(padding)
-        #endif
+        if text.isEmpty { 4 } else { 0 }
     }
 
     private func handleOnTextIsEmptyChange(_ oldValue: Bool, _ newValue: Bool) {
