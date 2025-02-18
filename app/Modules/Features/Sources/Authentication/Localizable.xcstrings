@@ -1,6 +1,12 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Already have an account?" : {
+
+    },
+    "Confirm Password" : {
+
+    },
     "Continue" : {
 
     },
@@ -10,9 +16,6 @@
     "Email" : {
 
     },
-    "Hello sign up" : {
-
-    },
     "Not an valid email" : {
 
     },
@@ -20,6 +23,9 @@
 
     },
     "Password must be atleast 5 characters" : {
+
+    },
+    "Password must be the same as the password above" : {
 
     },
     "Sign In" : {

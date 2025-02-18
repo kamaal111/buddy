@@ -13,16 +13,25 @@ struct LoginScreen: View {
 
     var body: some View {
         FormBox(localizedTitle: "Sign In", bundle: .module, minSize: AppConfig.screenMinSize, content: {
-            LoginFormContent(onSignIn: handleSignIn, onSignUpPress: handleSignUpPress)
+            LoginFormContent(onLogin: handleLogin, onSignUpPress: handleSignUpPress)
         })
         .navigationDestination(isPresented: $signUpScreenIsShown) { SignUpScreen(isShown: $signUpScreenIsShown) }
+        .toolbar {
+            ToolbarItem(placement: .automatic) {
+                Button(action: handleSignUpPress) {
+                    Text("Sign Up")
+                        .bold()
+                        .foregroundStyle(Color.accentColor)
+                }
+            }
+        }
     }
 
     private func handleSignUpPress() {
         signUpScreenIsShown = true
     }
 
-    private func handleSignIn(_ payload: SignInPayload) { }
+    private func handleLogin(_ payload: LoginPayload) { }
 }
 
 #Preview {

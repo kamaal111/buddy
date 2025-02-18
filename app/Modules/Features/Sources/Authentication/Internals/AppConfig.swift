@@ -8,5 +8,5 @@
 import CoreGraphics
 
 enum AppConfig {
-    static let screenMinSize: CGSize = .init(width: 300, height: 300)
+    static let screenMinSize: CGSize = .init(width: 400, height: 300)
 }

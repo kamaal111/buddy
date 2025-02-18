@@ -21,12 +21,18 @@ struct SignUpScreen: View {
 
     var body: some View {
         FormBox(localizedTitle: "Sign Up", bundle: .module, minSize: AppConfig.screenMinSize) {
-            Text("Hello sign up")
+            SignUpFormContent(onSignUp: handleSignUp, onLoginPress: handleLoginPress)
         }
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
     }
+
+    private func handleLoginPress() {
+        isShown = false
+    }
+
+    private func handleSignUp(_ payload: SignUpPayload) { }
 }
 
 #Preview {

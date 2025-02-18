@@ -1,5 +1,5 @@
 //
-//  LoginFormContent.swift
+//  SignUpFormContent.swift
 //  Authentication
 //
 //  Created by Kamaal M Farah on 2/17/25.
@@ -8,16 +8,18 @@
 import SwiftUI
 import DesignSystem
 
-struct LoginFormContent: View {
-    @FocusState private var focusedTextfield: LoginFormContentFocusFields?
+struct SignUpFormContent: View {
+    @FocusState private var focusedTextfield: SignUpFormContentFocusFields?
 
     @State private var email = ""
     @State private var emailError: AppTextFieldErrorResult?
     @State private var password = ""
     @State private var passwordError: AppTextFieldErrorResult?
+    @State private var confirmPassword = ""
+    @State private var confirmPasswordError: AppTextFieldErrorResult?
 
-    let onLogin: (_ payload: LoginPayload) -> Void
-    let onSignUpPress: () -> Void
+    let onSignUp: (_ payload: SignUpPayload) -> Void
+    let onLoginPress: () -> Void
 
     var body: some View {
         JustStack {
@@ -45,9 +47,24 @@ struct LoginFormContent: View {
             )
             .focused($focusedTextfield, equals: .password)
             .onSubmit(handleSubmit)
+            AppTextField(
+                text: $confirmPassword,
+                errorResult: $confirmPasswordError,
+                localizedTitle: "Confirm Password",
+                bundle: .module,
+                variant: .secure,
+                validations: [
+                    .isSameAs(
+                        value: password,
+                        message: NSLocalizedString("Password must be the same as the password above", comment: "")
+                    )
+                ]
+            )
+            .focused($focusedTextfield, equals: .password)
+            .onSubmit(handleSubmit)
             VStack {
                 Button(action: handleSubmit) {
-                    Text("Continue")
+                    Text("Sign Up")
                         .bold()
                         .foregroundStyle(formIsValid ? Color.accentColor : Color.secondary)
                 }
@@ -57,10 +74,10 @@ struct LoginFormContent: View {
             #if os(macOS)
             .padding(.vertical, .small)
             #endif
-            Button(action: onSignUpPress) {
+            Button(action: onLoginPress) {
                 HStack {
-                    Text("Don't have an account yet?")
-                    Text("Sign Up")
+                    Text("Already have an account?")
+                    Text("Sign In")
                         .foregroundStyle(Color.accentColor)
                         .bold()
                         .underline()
@@ -73,28 +90,28 @@ struct LoginFormContent: View {
         }
     }
 
-    private var loginPayload: LoginPayload {
-        LoginPayload(email: email, password: password)
+    private var formIsValid: Bool {
+        [emailError, passwordError, confirmPasswordError]
+            .allSatisfy({ result in result?.valid == true })
     }
 
-    private var formIsValid: Bool {
-        [emailError, passwordError]
-            .allSatisfy({ result in result?.valid == true })
+    private var signUpPayload: SignUpPayload {
+        SignUpPayload(email: email, password: password, confirmPassword: confirmPassword)
     }
 
     private func handleSubmit() {
         guard formIsValid else { return }
 
-        onLogin(loginPayload)
+        onSignUp(signUpPayload)
     }
 }
 
-private enum LoginFormContentFocusFields {
+private enum SignUpFormContentFocusFields {
     case email
     case password
+    case confirmPassword
 }
 
 #Preview {
-    LoginFormContent(onLogin: { _ in }, onSignUpPress: { })
-        .preview()
+    SignUpFormContent(onSignUp: { _ in }, onLoginPress: { })
 }
