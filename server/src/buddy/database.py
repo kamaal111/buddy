@@ -1,7 +1,7 @@
 from typing import Any, Generator, Protocol
 
 from sqlalchemy import Engine
-from sqlmodel import create_engine
+from sqlmodel import SQLModel, create_engine
 
 from buddy.conf import settings
 
@@ -15,12 +15,17 @@ class BaseDatabase:
         self.engine = engine
 
 
-def create_db_and_tables(database: Databaseable) -> None: ...
+def create_db_and_tables(database: Databaseable) -> None:
+    from buddy.auth.models import User  # noqa: F401
+
+    SQLModel.metadata.create_all(database.engine)
 
 
 class Database(BaseDatabase):
     def __init__(self) -> None:
-        super().__init__(create_engine(settings.database_url, echo=True))
+        engine = create_engine(settings.database_url, echo=True)
+
+        super().__init__(engine=engine)
 
 
 __database = Database()

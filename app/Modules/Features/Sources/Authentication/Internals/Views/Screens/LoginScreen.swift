@@ -12,7 +12,7 @@ struct LoginScreen: View {
     @State private var signUpScreenIsShown = false
 
     var body: some View {
-        FormBox(localizedTitle: "Sign In", bundle: .module, minSize: AppConfig.screenMinSize, content: {
+        FormBox(localizedTitle: "Sign In", bundle: .module, minSize: ModuleConfig.screenMinSize, content: {
             LoginFormContent(onLogin: handleLogin, onSignUpPress: handleSignUpPress)
         })
         .navigationDestination(isPresented: $signUpScreenIsShown) { SignUpScreen(isShown: $signUpScreenIsShown) }

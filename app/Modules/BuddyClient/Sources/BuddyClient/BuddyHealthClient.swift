@@ -7,7 +7,7 @@
 
 import OpenAPIRuntime
 
-public struct BuddyHealthClient: Sendable {
+public struct BuddyHealthClient {
     private let client: Client
 
     init(client: Client) {
@@ -37,7 +37,7 @@ public struct BuddyHealthClient: Sendable {
     }
 }
 
-public struct PingResponse: Codable, Sendable {
+public struct PingResponse: Codable {
     public let details: String
 }
 

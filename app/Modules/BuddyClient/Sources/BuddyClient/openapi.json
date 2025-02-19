@@ -114,6 +114,7 @@
                 "properties": {
                     "details": {
                         "type": "string",
+                        "const": "Created",
                         "title": "Details"
                     }
                 },

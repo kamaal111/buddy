@@ -9,6 +9,10 @@ import SwiftUI
 import DesignSystem
 
 struct SignUpScreen: View {
+    @EnvironmentObject private var authentication: Authentication
+
+    @State private var signingUp = false
+
     @Binding private var isShown: Bool
 
     init(isShown: Binding<Bool>) {
@@ -20,9 +24,10 @@ struct SignUpScreen: View {
     }
 
     var body: some View {
-        FormBox(localizedTitle: "Sign Up", bundle: .module, minSize: AppConfig.screenMinSize) {
+        FormBox(localizedTitle: "Sign Up", bundle: .module, minSize: ModuleConfig.screenMinSize) {
             SignUpFormContent(onSignUp: handleSignUp, onLoginPress: handleLoginPress)
         }
+        .disabled(signingUp)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
@@ -32,9 +37,17 @@ struct SignUpScreen: View {
         isShown = false
     }
 
-    private func handleSignUp(_ payload: SignUpPayload) { }
+    private func handleSignUp(_ payload: SignUpPayload) {
+        Task {
+            signingUp = true
+            let result = await authentication.signUp(email: payload.email, password: payload.password)
+            print("🐸🐸🐸 result", result)
+            signingUp = false
+        }
+    }
 }
 
 #Preview {
     SignUpScreen()
+        .preview()
 }

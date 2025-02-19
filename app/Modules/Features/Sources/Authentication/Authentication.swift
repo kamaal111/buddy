@@ -5,17 +5,22 @@
 //  Created by Kamaal M Farah on 2/16/25.
 //
 
+import OSLog
 import Foundation
+import BuddyClient
 
 public enum AuthenticationSignUpErrors: Error {
-    case userAlreadyExists
-    case invalidCredentials
+    case userAlreadyExists(context: Error)
+    case invalidCredentials(context: Error)
     case generalFailure(context: Error)
 }
 
 final public class Authentication: @unchecked Sendable, ObservableObject {
     @Published private(set) var initiallyValidatingToken: Bool
     @Published private var session: [String: String]?
+
+    private let client = BuddyClient()
+    private let logger = Logger(subsystem: ModuleConfig.identifier, category: String(describing: Authentication.self))
 
     public init() {
         if let authorizationToken = try? Keychain.get(forKey: KeychainKeys.authorizationToken.key).get() {
@@ -31,7 +36,17 @@ final public class Authentication: @unchecked Sendable, ObservableObject {
     }
 
     func signUp(email: String, password: String) async -> Result<Void, AuthenticationSignUpErrors> {
-        return .success(())
+        await client.authentication.register(email: email, password: password)
+            .mapError { error -> AuthenticationSignUpErrors in
+                switch error {
+                case .internalServerError:
+                    return .generalFailure(context: error)
+                case .badRequest:
+                    return .invalidCredentials(context: error)
+                case .undocumentedError:
+                    return .generalFailure(context: error)
+                }
+            }
     }
 
     private func loadSession(authorizationToken: String) async { }
@@ -41,6 +56,6 @@ private enum KeychainKeys: String {
     case authorizationToken
 
     var key: String {
-        "\(Bundle.main.bundleIdentifier!).Authentication.Keychain.\(rawValue)"
+        "\(ModuleConfig.identifier).Keychain.\(rawValue)"
     }
 }

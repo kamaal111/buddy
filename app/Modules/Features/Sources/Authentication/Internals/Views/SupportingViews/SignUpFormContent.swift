@@ -40,8 +40,8 @@ struct SignUpFormContent: View {
                 variant: .secure,
                 validations: [
                     .minimumLength(
-                        length: 5,
-                        message: NSLocalizedString("Password must be atleast 5 characters", comment: "")
+                        length: 8,
+                        message: NSLocalizedString("Password must be atleast 8 characters", comment: "")
                     )
                 ]
             )

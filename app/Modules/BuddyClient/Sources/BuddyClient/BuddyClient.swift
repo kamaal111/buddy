@@ -9,16 +9,13 @@ import Foundation
 import OpenAPIRuntime
 import OpenAPIURLSession
 
-public struct BuddyClient: Sendable {
+public struct BuddyClient {
     public let health: BuddyHealthClient
-
-    private let client: Client
+    public let authentication: BuddyAuthenticationClient
 
     public init() {
-        self.client = Client(
-            serverURL: URL(string: "http://localhost:8080")!,
-            transport: URLSessionTransport()
-        )
-        self.health = BuddyHealthClient(client: self.client)
+        let client = Client(serverURL: URL(string: "http://localhost:8080")!, transport: URLSessionTransport())
+        self.health = BuddyHealthClient(client: client)
+        self.authentication = BuddyAuthenticationClient(client: client)
     }
 }

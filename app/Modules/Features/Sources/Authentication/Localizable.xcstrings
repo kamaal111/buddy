@@ -22,7 +22,7 @@
     "Password" : {
 
     },
-    "Password must be atleast 5 characters" : {
+    "Password must be atleast 8 characters" : {
 
     },
     "Password must be the same as the password above" : {
