@@ -23,15 +23,15 @@
                 }
             }
         },
-        "/auth/register": {
+        "/app-api/v1/auth/register": {
             "post": {
                 "summary": "Register",
-                "operationId": "register_auth_register_post",
+                "operationId": "register_app_api_v1_auth_register_post",
                 "requestBody": {
                     "content": {
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/Body_register_auth_register_post"
+                                "$ref": "#/components/schemas/Body_register_app_api_v1_auth_register_post"
                             }
                         }
                     },
@@ -64,7 +64,7 @@
     },
     "components": {
         "schemas": {
-            "Body_register_auth_register_post": {
+            "Body_register_app_api_v1_auth_register_post": {
                 "properties": {
                     "email": {
                         "type": "string",
@@ -81,7 +81,7 @@
                     "email",
                     "password"
                 ],
-                "title": "Body_register_auth_register_post"
+                "title": "Body_register_app_api_v1_auth_register_post"
             },
             "HTTPValidationError": {
                 "properties": {
@@ -112,15 +112,15 @@
             },
             "RegisterResponse": {
                 "properties": {
-                    "details": {
+                    "detail": {
                         "type": "string",
                         "const": "Created",
-                        "title": "Details"
+                        "title": "Detail"
                     }
                 },
                 "type": "object",
                 "required": [
-                    "details"
+                    "detail"
                 ],
                 "title": "RegisterResponse"
             },

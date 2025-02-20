@@ -1,8 +1,6 @@
-from http import HTTPStatus
 from typing import Annotated, Any, Generator, Protocol
 
-from fastapi import Depends, HTTPException
-from pydantic import ValidationError
+from fastapi import Depends
 from sqlmodel import Session
 
 from buddy.auth.models import User
@@ -21,14 +19,7 @@ class AuthController:
         self.database = database
 
     def register(self, email: str, password: str) -> RegisterResponse:
-        try:
-            validated_payload = UserSchema(email=email, password=password)
-        except ValidationError as e:
-            raise HTTPException(
-                HTTPStatus.BAD_REQUEST,
-                e.errors(include_url=False, include_input=False, include_context=False),
-            ) from e
-
+        validated_payload = UserSchema(email=email, password=password)
         with Session(self.database.engine) as session:
             User.create(payload=validated_payload, session=session)
 

@@ -16,9 +16,9 @@ public struct BuddyAuthenticationClient {
     }
 
     public func register(email: String, password: String) async -> Result<Void, BuddyAuthenticationRegisterErrors> {
-        let output: Operations.RegisterAuthRegisterPost.Output
+        let output: Operations.RegisterAppApiV1AuthRegisterPost.Output
         do {
-            output = try await client.registerAuthRegisterPost(
+            output = try await client.registerAppApiV1AuthRegisterPost(
                 body: .urlEncodedForm(.init(email: email, password: password))
             )
         } catch {

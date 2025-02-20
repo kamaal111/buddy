@@ -8,7 +8,7 @@ from buddy.auth.models import User
 
 def test_register(client, database):
     payload = {"email": "yuno@golden.io", "password": "password-to-keep"}
-    register_response = client.post("/auth/register", data=payload)
+    register_response = client.post("/app-api/v1/auth/register", data=payload)
     json_response = register_response.json()
 
     assert register_response.status_code == HTTPStatus.CREATED
@@ -24,7 +24,7 @@ def test_register(client, database):
 
 def test_already_exists(client, default_user_credentials):
     register_response = client.post(
-        "/auth/register", data=default_user_credentials.model_dump()
+        "/app-api/v1/auth/register", data=default_user_credentials.model_dump()
     )
     json_response = register_response.json()
 
@@ -42,7 +42,7 @@ def test_already_exists(client, default_user_credentials):
     ],
 )
 def test_missing_field(client, payload, missing_property):
-    register_response = client.post("/auth/register", data=payload)
+    register_response = client.post("/app-api/v1/auth/register", data=payload)
     json_response = register_response.json()
 
     assert register_response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
@@ -58,7 +58,7 @@ def test_missing_field(client, payload, missing_property):
 
 def test_invalid_email(client):
     payload = {"email": "yuno@golden", "password": "password-to-keep"}
-    register_response = client.post("/auth/register", data=payload)
+    register_response = client.post("/app-api/v1/auth/register", data=payload)
     json_response = register_response.json()
 
     assert register_response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
@@ -77,10 +77,10 @@ def test_invalid_email(client):
 
 def test_invalid_password(client):
     payload = {"email": "yuno@golden.io", "password": "pass"}
-    register_response = client.post("/auth/register", data=payload)
+    register_response = client.post("/app-api/v1/auth/register", data=payload)
     json_response = register_response.json()
 
-    assert register_response.status_code == HTTPStatus.BAD_REQUEST
+    assert register_response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
     assert json_response["detail"] == [
         {
             "type": "string_too_short",
