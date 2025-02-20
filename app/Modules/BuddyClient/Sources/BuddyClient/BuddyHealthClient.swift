@@ -7,6 +7,10 @@
 
 import OpenAPIRuntime
 
+public struct PingResponse: Codable {
+    public let details: String
+}
+
 public struct BuddyHealthClient {
     private let client: Client
 
@@ -35,10 +39,6 @@ public struct BuddyHealthClient {
 
         return .success(PingResponse(details: data.detail.rawValue))
     }
-}
-
-public struct PingResponse: Codable {
-    public let details: String
 }
 
 public enum BuddyHealthPingErrors: Error {

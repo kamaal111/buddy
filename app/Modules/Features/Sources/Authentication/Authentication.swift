@@ -9,12 +9,6 @@ import OSLog
 import Foundation
 import BuddyClient
 
-public enum AuthenticationSignUpErrors: Error {
-    case userAlreadyExists(context: Error)
-    case invalidCredentials(context: Error)
-    case generalFailure(context: Error)
-}
-
 final public class Authentication: @unchecked Sendable, ObservableObject {
     @Published private(set) var initiallyValidatingToken: Bool
     @Published private var session: [String: String]?
@@ -35,8 +29,8 @@ final public class Authentication: @unchecked Sendable, ObservableObject {
         session != nil
     }
 
-    func signUp(email: String, password: String) async -> Result<Void, AuthenticationSignUpErrors> {
-        await client.authentication.register(email: email, password: password)
+    func login(email: String, password: String) async -> Result<Void, AuthenticationSignUpErrors> {
+        let result = await client.authentication.login(email: email, password: password)
             .mapError { error -> AuthenticationSignUpErrors in
                 switch error {
                 case .internalServerError:
@@ -47,9 +41,45 @@ final public class Authentication: @unchecked Sendable, ObservableObject {
                     return .generalFailure(context: error)
                 }
             }
+        let accessToken: BuddyAuthenticationLoginResponse
+        switch result {
+        case let .failure(failure): return .failure(failure)
+        case let .success(sucess): accessToken = sucess
+        }
+
+        print("🐸🐸🐸 accessToken", accessToken)
+
+        return .success(())
+    }
+
+    func signUp(email: String, password: String) async -> Result<Void, AuthenticationSignUpErrors> {
+        await client.authentication.register(email: email, password: password)
+            .mapError { error -> AuthenticationSignUpErrors in
+                switch error {
+                case .internalServerError:
+                    return .generalFailure(context: error)
+                case .badRequest:
+                    return .invalidCredentials(context: error)
+                case .undocumentedError:
+                    return .generalFailure(context: error)
+                case .conflict:
+                    return .userAlreadyExists(context: error)
+                }
+            }
     }
 
     private func loadSession(authorizationToken: String) async { }
+}
+
+enum AuthenticationLoginErrors: Error {
+    case invalidCredentials(context: Error)
+    case generalFailure(context: Error)
+}
+
+enum AuthenticationSignUpErrors: Error {
+    case userAlreadyExists(context: Error)
+    case invalidCredentials(context: Error)
+    case generalFailure(context: Error)
 }
 
 private enum KeychainKeys: String {
