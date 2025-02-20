@@ -1,6 +1,7 @@
 from http import HTTPStatus
 
-from buddy.exceptions import BuddyError, BuddyErrorDetail
+from buddy.exceptions import BuddyError
+from buddy.schemas import BuddyErrorDetail
 
 
 class UserAlreadyExists(BuddyError):

@@ -33,7 +33,7 @@ public struct BuddyHealthClient {
             return .failure(.undocumentedError(statusCode: statusCode, payload: payload))
         }
 
-        return .success(PingResponse(details: data.details.rawValue))
+        return .success(PingResponse(details: data.detail.rawValue))
     }
 }
 

@@ -39,7 +39,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Successful Response",
+                        "description": "Return whether the user account has been created successfully.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -48,12 +48,22 @@
                             }
                         }
                     },
-                    "422": {
-                        "description": "Validation Error",
+                    "409": {
+                        "description": "Provided user credentials already exist.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid payload provided.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
                                 }
                             }
                         }
@@ -77,7 +87,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Successful Response",
+                        "description": "Return the access token of the user logging in.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -86,12 +96,22 @@
                             }
                         }
                     },
-                    "422": {
-                        "description": "Validation Error",
+                    "401": {
+                        "description": "Invalid credentials provided.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invalid payload provided.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
                                 }
                             }
                         }
@@ -140,18 +160,39 @@
                 ],
                 "title": "Body_register_app_api_v1_auth_register_post"
             },
-            "HTTPValidationError": {
+            "BuddyErrorDetail": {
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "title": "Type"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Msg"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "type",
+                    "msg"
+                ],
+                "title": "BuddyErrorDetail"
+            },
+            "ErrorResponse": {
                 "properties": {
                     "detail": {
                         "items": {
-                            "$ref": "#/components/schemas/ValidationError"
+                            "$ref": "#/components/schemas/BuddyErrorDetail"
                         },
                         "type": "array",
                         "title": "Detail"
                     }
                 },
                 "type": "object",
-                "title": "HTTPValidationError"
+                "required": [
+                    "detail"
+                ],
+                "title": "ErrorResponse"
             },
             "LoginResponse": {
                 "properties": {
@@ -180,15 +221,15 @@
             },
             "PingResponse": {
                 "properties": {
-                    "details": {
+                    "detail": {
                         "type": "string",
                         "const": "PONG",
-                        "title": "Details"
+                        "title": "Detail"
                     }
                 },
                 "type": "object",
                 "required": [
-                    "details"
+                    "detail"
                 ],
                 "title": "PingResponse"
             },
@@ -205,39 +246,6 @@
                     "detail"
                 ],
                 "title": "RegisterResponse"
-            },
-            "ValidationError": {
-                "properties": {
-                    "loc": {
-                        "items": {
-                            "anyOf": [
-                                {
-                                    "type": "string"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "type": "array",
-                        "title": "Location"
-                    },
-                    "msg": {
-                        "type": "string",
-                        "title": "Message"
-                    },
-                    "type": {
-                        "type": "string",
-                        "title": "Error Type"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "loc",
-                    "msg",
-                    "type"
-                ],
-                "title": "ValidationError"
             }
         }
     }

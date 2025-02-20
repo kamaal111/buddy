@@ -1,14 +1,9 @@
-from dataclasses import asdict, dataclass
 from http import HTTPStatus
 
 from fastapi import HTTPException
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
-
-@dataclass
-class BuddyErrorDetail:
-    msg: str
-    type: str
+from buddy.schemas import BuddyErrorDetail
 
 
 class BuddyError(HTTPException):
@@ -18,7 +13,7 @@ class BuddyError(HTTPException):
         details: list[BuddyErrorDetail],
         headers: dict[str, str] | None = None,
     ):
-        super().__init__(status_code, list(map(asdict, details)), headers)
+        super().__init__(status_code, list(map(_base_model_as_dict, details)), headers)
 
 
 class BuddyValidationError(HTTPException):
@@ -34,3 +29,7 @@ class BuddyValidationError(HTTPException):
             ),
             headers,
         )
+
+
+def _base_model_as_dict(base_model: BaseModel):
+    return base_model.model_dump()

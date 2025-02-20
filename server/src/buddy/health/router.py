@@ -7,9 +7,9 @@ health_router = APIRouter(prefix="/health")
 
 
 class PingResponse(BaseModel):
-    details: Literal["PONG"]
+    detail: Literal["PONG"]
 
 
 @health_router.get("/ping")
 async def ping() -> PingResponse:
-    return PingResponse(details="PONG")
+    return PingResponse(detail="PONG")

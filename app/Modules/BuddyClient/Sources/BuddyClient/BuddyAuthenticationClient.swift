@@ -32,6 +32,12 @@ public struct BuddyAuthenticationClient {
                 let encodedResponse = try? JSONEncoder().encode(unprocessableJSONResponse)
                 return .failure(.badRequest(response: encodedResponse))
             }
+        case let .conflict(conflictResponse):
+            switch conflictResponse.body {
+            case let .json(conflictJSONResponse):
+                let encodedResponse = try? JSONEncoder().encode(conflictJSONResponse)
+                return .failure(.conflict(response: encodedResponse))
+            }
         case let .undocumented(statusCode, payload):
             return .failure(.undocumentedError(statusCode: statusCode, payload: payload))
         case let .created(response):
@@ -46,5 +52,6 @@ public struct BuddyAuthenticationClient {
 public enum BuddyAuthenticationRegisterErrors: Error {
     case internalServerError(context: Error)
     case badRequest(response: Data?)
+    case conflict(response: Data?)
     case undocumentedError(statusCode: Int, payload: UndocumentedPayload)
 }
