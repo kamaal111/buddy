@@ -1,7 +1,11 @@
 set export
+set dotenv-load
 
 PORT := "8080"
 DATABASE_URL := "sqlite:///database.db"
+JWT_EXPIRE_MINUTES := "30"
+JWT_ALGORITHM := "HS256"
+JWT_SECRET_KEY := "not_so_secure_secret"
 
 # List available commands
 default:
@@ -13,6 +17,7 @@ dev:
 
     uv run uvicorn src.buddy.main:app --reload --host 0.0.0.0 --port $PORT
 
+# Test
 test:
     uv run pytest
 

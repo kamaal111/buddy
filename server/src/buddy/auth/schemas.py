@@ -10,3 +10,12 @@ class UserSchema(BaseModel):
 
 class RegisterResponse(BaseModel):
     detail: Literal["Created"]
+
+
+class AccessToken(BaseModel):
+    access_token: str
+    token_type: Literal["bearer"]
+
+
+class LoginResponse(AccessToken):
+    detail: Literal["OK"]

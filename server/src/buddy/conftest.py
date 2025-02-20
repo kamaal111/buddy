@@ -46,7 +46,7 @@ def default_user_credentials():
 
 
 @pytest.fixture
-def create_default_user(database, default_user_credentials):
+def default_user(database, default_user_credentials):
     with Session(database.engine) as session:
         query = select(User).where(User.email == default_user_credentials.email)
         if user := session.exec(query).first():
@@ -56,7 +56,7 @@ def create_default_user(database, default_user_credentials):
 
 
 @pytest.fixture(scope="function")
-def client(database, create_default_user):
+def client(database, default_user):
     __client = TestClient(app)
     app.dependency_overrides[get_database] = get_database_override(database)
 
