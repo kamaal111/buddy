@@ -18,6 +18,12 @@ class User(SQLModel, table=True):
     email: EmailStr
     password: str
 
+    def verify_password(self, raw_password: str) -> bool:
+        return bcrypt.checkpw(
+            raw_password.encode(PASSWORD_HASHING_ENCODING),
+            self.password.encode(PASSWORD_HASHING_ENCODING),
+        )
+
     @staticmethod
     def get_by_email(email: str, session: Session) -> User | None:
         query = select(User).where(User.email == email).limit(1)

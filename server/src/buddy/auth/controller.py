@@ -24,12 +24,15 @@ class AuthController:
         try:
             validated_payload = UserSchema(email=email, password=password)
         except ValidationError as e:
-            raise HTTPException(HTTPStatus.BAD_REQUEST, e.errors()) from e
+            raise HTTPException(
+                HTTPStatus.BAD_REQUEST,
+                e.errors(include_url=False, include_input=False, include_context=False),
+            ) from e
 
         with Session(self.database.engine) as session:
             User.create(payload=validated_payload, session=session)
 
-            return RegisterResponse(details="Created")
+            return RegisterResponse(detail="Created")
 
 
 def get_auth_controller(

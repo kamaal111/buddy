@@ -6,6 +6,9 @@ default:
 dev-server:
     just server/dev
 
+test:
+    just server/test
+
 quality: lint
 
 # Type check

@@ -9,4 +9,4 @@ class UserSchema(BaseModel):
 
 
 class RegisterResponse(BaseModel):
-    details: Literal["Created"]
+    detail: Literal["Created"]

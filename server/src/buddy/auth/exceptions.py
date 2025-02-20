@@ -1,8 +1,12 @@
 from http import HTTPStatus
 
-from fastapi import HTTPException
+from buddy.exceptions import BuddyError, BuddyErrorDetail
 
 
-class UserAlreadyExists(HTTPException):
-    def __init__(self, headers: dict[str, str] | None = None) -> None:
-        super().__init__(HTTPStatus.CONFLICT, "User already exists", headers)
+class UserAlreadyExists(BuddyError):
+    def __init__(self, headers: dict[str, str] | None = None):
+        super().__init__(
+            HTTPStatus.CONFLICT,
+            [BuddyErrorDetail(msg="User already exists", type="user_already_exists")],
+            headers,
+        )

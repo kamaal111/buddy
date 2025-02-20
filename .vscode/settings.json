@@ -2,5 +2,10 @@
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
         "source.fixAll": "always"
-    }
+    },
+    "python.testing.pytestArgs": [
+        "server"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
 }
