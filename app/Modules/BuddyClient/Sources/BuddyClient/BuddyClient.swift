@@ -14,7 +14,7 @@ public struct BuddyClient {
     public let authentication: BuddyAuthenticationClient
 
     public init() {
-        let client = Client(serverURL: URL(string: "http://localhost:8080")!, transport: URLSessionTransport())
+        let client = Client(serverURL: URL(string: "http://localhost:8000")!, transport: URLSessionTransport())
         self.health = BuddyHealthClient(client: client)
         self.authentication = BuddyAuthenticationClient(client: client)
     }
