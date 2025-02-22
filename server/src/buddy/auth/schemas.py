@@ -2,6 +2,8 @@ from typing import Literal
 
 from pydantic import BaseModel, EmailStr, Field
 
+from buddy.schemas import OKResponse
+
 
 class UserSchema(BaseModel):
     email: EmailStr
@@ -17,5 +19,8 @@ class AccessToken(BaseModel):
     token_type: Literal["bearer"]
 
 
-class LoginResponse(AccessToken):
-    detail: Literal["OK"]
+class LoginResponse(AccessToken, OKResponse): ...
+
+
+class SessionResponse(OKResponse):
+    email: EmailStr

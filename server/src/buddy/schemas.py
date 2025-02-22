@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import BaseModel
 
 
@@ -8,3 +10,7 @@ class BuddyErrorDetail(BaseModel):
 
 class ErrorResponse(BaseModel):
     detail: list[BuddyErrorDetail]
+
+
+class OKResponse(BaseModel):
+    detail: Literal["OK"]

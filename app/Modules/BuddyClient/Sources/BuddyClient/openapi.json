@@ -196,6 +196,11 @@
             },
             "LoginResponse": {
                 "properties": {
+                    "detail": {
+                        "type": "string",
+                        "const": "OK",
+                        "title": "Detail"
+                    },
                     "access_token": {
                         "type": "string",
                         "title": "Access Token"
@@ -204,18 +209,13 @@
                         "type": "string",
                         "const": "bearer",
                         "title": "Token Type"
-                    },
-                    "detail": {
-                        "type": "string",
-                        "const": "OK",
-                        "title": "Detail"
                     }
                 },
                 "type": "object",
                 "required": [
+                    "detail",
                     "access_token",
-                    "token_type",
-                    "detail"
+                    "token_type"
                 ],
                 "title": "LoginResponse"
             },

@@ -9,6 +9,8 @@ import SwiftUI
 import DesignSystem
 
 struct LoginScreen: View {
+    @EnvironmentObject private var authentication: Authentication
+
     @State private var signUpScreenIsShown = false
     @State private var toast: Toast?
 

@@ -1,22 +1,38 @@
 from __future__ import annotations
 
+from datetime import datetime
+
 import bcrypt
 from pydantic import EmailStr
-from sqlmodel import Field, SQLModel, Session, UniqueConstraint, select
+from sqlalchemy import Column, DateTime
+from sqlmodel import Field, SQLModel, Session, select
 
 from buddy.auth.exceptions import UserAlreadyExists
 from buddy.auth.schemas import UserSchema
+from buddy.utils.datetime_utils import datetime_now_with_timezone
 
 PASSWORD_HASHING_ENCODING = "utf-8"
 
 
 class User(SQLModel, table=True):
     __tablename__: str = "user"  # type: ignore
-    __table_args__ = (UniqueConstraint("email"),)
 
     id: int | None = Field(default=None, primary_key=True)
-    email: EmailStr
-    password: str
+    email: EmailStr = Field(unique=True)
+    password: str = Field(min_length=8)
+    created_at: datetime = Field(
+        sa_column=Column(
+            DateTime(timezone=True), nullable=False, default=datetime_now_with_timezone
+        ),
+    )
+    updated_at: datetime = Field(
+        sa_column=Column(
+            DateTime(timezone=True),
+            nullable=False,
+            default=datetime_now_with_timezone,
+            onupdate=datetime_now_with_timezone,
+        ),
+    )
 
     def verify_password(self, raw_password: str) -> bool:
         return bcrypt.checkpw(
