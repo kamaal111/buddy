@@ -32,6 +32,7 @@ final public class Authentication: @unchecked Sendable, ObservableObject {
     func login(email: String, password: String) async -> Result<Void, AuthenticationSignUpErrors> {
         let result = await client.authentication.login(email: email, password: password)
             .mapError { error -> AuthenticationSignUpErrors in
+                logger.error("Failed to log in user; error='\(error)'")
                 switch error {
                 case .internalServerError:
                     return .generalFailure(context: error)
@@ -55,6 +56,7 @@ final public class Authentication: @unchecked Sendable, ObservableObject {
     func signUp(email: String, password: String) async -> Result<Void, AuthenticationSignUpErrors> {
         await client.authentication.register(email: email, password: password)
             .mapError { error -> AuthenticationSignUpErrors in
+                logger.error("Failed to sign up user; error='\(error)'")
                 switch error {
                 case .internalServerError:
                     return .generalFailure(context: error)
@@ -74,12 +76,32 @@ final public class Authentication: @unchecked Sendable, ObservableObject {
 enum AuthenticationLoginErrors: Error {
     case invalidCredentials(context: Error)
     case generalFailure(context: Error)
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidCredentials:
+            return NSLocalizedString("Invalid credentials provided.", comment: "")
+        case .generalFailure:
+            return NSLocalizedString("Failed to log in.", comment: "")
+        }
+    }
 }
 
 enum AuthenticationSignUpErrors: Error {
     case userAlreadyExists(context: Error)
     case invalidCredentials(context: Error)
     case generalFailure(context: Error)
+
+    var errorDescription: String? {
+        switch self {
+        case .userAlreadyExists:
+            return NSLocalizedString("User with the same email already exists.", comment: "")
+        case .invalidCredentials:
+            return NSLocalizedString("Invalid credentials provided.", comment: "")
+        case .generalFailure:
+            return NSLocalizedString("Failed to sign up.", comment: "")
+        }
+    }
 }
 
 private enum KeychainKeys: String {

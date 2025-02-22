@@ -10,12 +10,16 @@ import DesignSystem
 
 struct LoginScreen: View {
     @State private var signUpScreenIsShown = false
+    @State private var toast: Toast?
 
     var body: some View {
         FormBox(localizedTitle: "Sign In", bundle: .module, minSize: ModuleConfig.screenMinSize, content: {
             LoginFormContent(onLogin: handleLogin, onSignUpPress: handleSignUpPress)
         })
-        .navigationDestination(isPresented: $signUpScreenIsShown) { SignUpScreen(isShown: $signUpScreenIsShown) }
+        .navigationDestination(isPresented: $signUpScreenIsShown) {
+            SignUpScreen(isShown: $signUpScreenIsShown, toast: $toast)
+                .toastView(toast: $toast)
+        }
         .toolbar {
             ToolbarItem(placement: .automatic) {
                 Button(action: handleSignUpPress) {
@@ -25,6 +29,7 @@ struct LoginScreen: View {
                 }
             }
         }
+        .toastView(toast: $toast)
     }
 
     private func handleSignUpPress() {

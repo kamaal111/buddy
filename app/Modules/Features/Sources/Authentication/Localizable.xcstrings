@@ -16,6 +16,15 @@
     "Email" : {
 
     },
+    "Failed to log in." : {
+
+    },
+    "Failed to sign up." : {
+
+    },
+    "Invalid credentials provided." : {
+
+    },
     "Not an valid email" : {
 
     },
@@ -32,6 +41,12 @@
 
     },
     "Sign Up" : {
+
+    },
+    "Successfully created a account." : {
+
+    },
+    "User with the same email already exists." : {
 
     }
   },
