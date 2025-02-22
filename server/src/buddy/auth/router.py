@@ -5,7 +5,9 @@ from fastapi import APIRouter, Depends, Form
 from pydantic import EmailStr
 
 from buddy.auth.controller import AuthControllable, get_auth_controller
-from buddy.auth.schemas import LoginResponse, RegisterResponse
+from buddy.auth.middleware import get_request_user
+from buddy.auth.models import User
+from buddy.auth.schemas import LoginResponse, RegisterResponse, SessionResponse
 from buddy.schemas import ErrorResponse
 
 auth_router = APIRouter(prefix="/auth")
@@ -61,3 +63,28 @@ def login(
     controller: Annotated[AuthControllable, Depends(get_auth_controller)],
 ) -> LoginResponse:
     return controller.login(email=email, password=password)
+
+
+@auth_router.get(
+    "/session",
+    status_code=HTTPStatus.OK,
+    responses={
+        HTTPStatus.OK: {
+            "model": SessionResponse,
+            "description": "Return the session data for the user that is logged in.",
+        },
+        HTTPStatus.UNAUTHORIZED: {
+            "model": ErrorResponse,
+            "description": "Invalid credentials provided.",
+        },
+        HTTPStatus.UNPROCESSABLE_ENTITY: {
+            "model": ErrorResponse,
+            "description": "Invalid payload provided.",
+        },
+    },
+)
+def session(
+    user: Annotated[User, Depends(get_request_user)],
+    controller: Annotated[AuthControllable, Depends(get_auth_controller)],
+):
+    return controller.session(user=user)

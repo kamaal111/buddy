@@ -1,28 +1,14 @@
 from http import HTTPStatus
 
-import jwt
 import pytest
 
-from buddy.conf import settings
+from buddy.auth.utils.jwt_utils import decode_jwt
 
 
-def test_login(client, default_user_credentials, default_user):
-    login_response = client.post(
-        "/app-api/v1/auth/login", data=default_user_credentials.model_dump()
-    )
-    json_response = login_response.json()
+def test_login(default_user, default_user_access_token):
+    claims = decode_jwt(token=default_user_access_token)
 
-    assert login_response.status_code == HTTPStatus.OK
-    assert json_response["detail"] == "OK"
-    assert json_response["token_type"] == "bearer"
-
-    decoded_token = jwt.decode(
-        json_response["access_token"],
-        settings.jwt_secret_key,
-        algorithms=[settings.jwt_algorithm],
-    )
-
-    assert decoded_token["sub"] == str(default_user.id)
+    assert claims.sub == str(default_user.id)
 
 
 def test_incorrect_password(client, default_user_credentials):
@@ -59,7 +45,10 @@ def test_user_does_not_exist(client, default_user_credentials):
     ],
 )
 def test_missing_field(client, payload, missing_property):
-    login_response = client.post("/app-api/v1/auth/login", data=payload)
+    login_response = client.post(
+        "/app-api/v1/auth/login",
+        data=payload,
+    )
     json_response = login_response.json()
 
     assert login_response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
@@ -75,7 +64,10 @@ def test_missing_field(client, payload, missing_property):
 
 def test_invalid_email(client):
     payload = {"email": "yuno@golden", "password": "password-to-keep"}
-    login_response = client.post("/app-api/v1/auth/register", data=payload)
+    login_response = client.post(
+        "/app-api/v1/auth/login",
+        data=payload,
+    )
     json_response = login_response.json()
 
     assert login_response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
@@ -94,7 +86,10 @@ def test_invalid_email(client):
 
 def test_invalid_password(client):
     payload = {"email": "yuno@golden.io", "password": "pass"}
-    login_response = client.post("/app-api/v1/auth/register", data=payload)
+    login_response = client.post(
+        "/app-api/v1/auth/login",
+        data=payload,
+    )
     json_response = login_response.json()
 
     assert login_response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY

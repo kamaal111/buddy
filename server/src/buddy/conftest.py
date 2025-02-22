@@ -1,4 +1,5 @@
 import uuid
+from http import HTTPStatus
 from pathlib import Path
 
 import pytest
@@ -6,7 +7,7 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session, create_engine, select
 
 from buddy.auth.models import User
-from buddy.auth.schemas import UserSchema
+from buddy.auth.schemas import UserPayload
 from buddy.database import BaseDatabase, create_db_and_tables, get_database
 from buddy.main import app
 
@@ -42,7 +43,7 @@ def database():
 
 @pytest.fixture
 def default_user_credentials():
-    yield UserSchema(email="yami@bulls.io", password="nice_password")
+    yield UserPayload(email="yami@bulls.io", password="nice_password")
 
 
 @pytest.fixture
@@ -53,6 +54,25 @@ def default_user(database, default_user_credentials):
             yield user
 
         yield User.create(payload=default_user_credentials, session=session)
+
+
+@pytest.fixture
+def default_user_access_token(client, default_user, default_user_credentials) -> str:
+    login_response = client.post(
+        "/app-api/v1/auth/login",
+        data=default_user_credentials.model_dump(),
+    )
+    json_response = login_response.json()
+
+    assert login_response.status_code == HTTPStatus.OK
+    assert json_response["detail"] == "OK"
+    assert json_response["token_type"] == "bearer"
+
+    access_token = json_response["access_token"]
+
+    assert isinstance(access_token, str)
+
+    return access_token
 
 
 @pytest.fixture(scope="function")

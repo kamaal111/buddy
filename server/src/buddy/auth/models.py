@@ -8,7 +8,7 @@ from sqlalchemy import Column, DateTime
 from sqlmodel import Field, SQLModel, Session, select
 
 from buddy.auth.exceptions import UserAlreadyExists
-from buddy.auth.schemas import UserSchema
+from buddy.auth.schemas import UserPayload
 from buddy.utils.datetime_utils import datetime_now_with_timezone
 
 PASSWORD_HASHING_ENCODING = "utf-8"
@@ -46,8 +46,14 @@ class User(SQLModel, table=True):
 
         return session.exec(query).first()
 
+    @staticmethod
+    def get_by_id(id: int, session: Session) -> User | None:
+        query = select(User).where(User.id == id).limit(1)
+
+        return session.exec(query).first()
+
     @classmethod
-    def create(cls, payload: UserSchema, session: Session, commit=True) -> User:
+    def create(cls, payload: UserPayload, session: Session, commit=True) -> User:
         existing_user = User.get_by_email(email=payload.email, session=session)
         if existing_user is not None:
             raise UserAlreadyExists()

@@ -5,7 +5,7 @@ from pydantic import BaseModel, EmailStr, Field
 from buddy.schemas import OKResponse
 
 
-class UserSchema(BaseModel):
+class UserPayload(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8)
 
@@ -22,5 +22,9 @@ class AccessToken(BaseModel):
 class LoginResponse(AccessToken, OKResponse): ...
 
 
-class SessionResponse(OKResponse):
+class UserResponse(BaseModel):
     email: EmailStr
+
+
+class SessionResponse(OKResponse):
+    user: UserResponse
