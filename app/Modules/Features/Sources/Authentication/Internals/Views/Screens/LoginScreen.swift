@@ -38,7 +38,16 @@ struct LoginScreen: View {
         signUpScreenIsShown = true
     }
 
-    private func handleLogin(_ payload: LoginPayload) { }
+    private func handleLogin(_ payload: LoginPayload) {
+        Task {
+            let result = await authentication.login(email: payload.email, password: payload.password)
+            switch result {
+            case let .failure(failure):
+                toast = .error(message: failure.errorDescription ?? failure.localizedDescription)
+            case .success: break
+            }
+        }
+    }
 }
 
 #Preview {

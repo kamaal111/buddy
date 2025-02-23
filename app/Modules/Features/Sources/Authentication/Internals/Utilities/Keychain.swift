@@ -8,8 +8,7 @@
 import Security
 import Foundation
 
-enum KeychainAddErrors: Error {
-    case duplicateEntry
+enum KeychainSetErrors: Error {
     case generalError(status: OSStatus)
 }
 
@@ -24,8 +23,7 @@ enum KeychainDeleteErrors: Error {
 struct Keychain {
     private init() { }
 
-    static func add(_ token: String, forKey key: String) -> Result<Void, KeychainAddErrors> {
-        let data = token.data(using: .utf8)!
+    static func set(_ data: Data, forKey key: String) -> Result<Void, KeychainSetErrors> {
         let query = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrAccount: key,
@@ -33,13 +31,13 @@ struct Keychain {
             kSecAttrAccessible: kSecAttrAccessibleWhenUnlocked
         ] as CFDictionary
         let status = SecItemAdd(query, nil)
-        guard status != errSecDuplicateItem else { return .failure(.duplicateEntry) }
+        guard status != errSecDuplicateItem else { return update(data, forKey: key) }
         guard status == errSecSuccess else { return .failure(.generalError(status: status)) }
 
         return .success(())
     }
 
-    static func get(forKey key: String) -> Result<String?, KeychainGetErrors> {
+    static func get(forKey key: String) -> Result<Data?, KeychainGetErrors> {
         let query = [
             kSecClass: kSecClassGenericPassword,
             kSecAttrAccount: key,
@@ -51,7 +49,7 @@ struct Keychain {
         guard status == errSecSuccess else { return .failure(.generalError(status: status)) }
         guard let data = dataTypeRef as? Data else { return .success(nil) }
 
-        return .success(String(data: data, encoding: .utf8))
+        return .success(data)
     }
 
     @discardableResult
@@ -61,6 +59,18 @@ struct Keychain {
             kSecAttrAccount: key,
         ] as CFDictionary
         let status = SecItemDelete(query)
+        guard status == errSecSuccess else { return .failure(.generalError(status: status)) }
+
+        return .success(())
+    }
+
+    private static func update(_ data: Data, forKey key: String) -> Result<Void, KeychainSetErrors> {
+        let query = [
+            kSecClass: kSecClassGenericPassword,
+            kSecAttrAccount: key,
+        ] as CFDictionary
+        let attributes = [kSecValueData as String: data] as CFDictionary
+        let status = SecItemUpdate(query, attributes)
         guard status == errSecSuccess else { return .failure(.generalError(status: status)) }
 
         return .success(())

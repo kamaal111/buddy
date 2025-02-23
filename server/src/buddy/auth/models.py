@@ -79,7 +79,7 @@ class UserToken(SQLModel, table=True):
     __tablename__: str = "user_token"  # type: ignore
 
     id: int | None = Field(default=None, primary_key=True)
-    key: str = Field(max_length=20)
+    key: str = Field()
     user_id: int = Field(default=None, foreign_key=f"{User.__tablename__}.id")
     created_at: datetime = Field(
         sa_column=Column(
@@ -116,6 +116,11 @@ class UserToken(SQLModel, table=True):
         tokens_to_delete_amount = len(tokens_for_user) - (
             settings.refresh_tokens_per_user - 1
         )
+
+        assert len(tokens_for_user) <= settings.refresh_tokens_per_user, (
+            "Tokens should have been less then the amount allowed"
+        )
+
         if tokens_to_delete_amount > 0:
             tokens_to_delete = tokens_for_user[:tokens_to_delete_amount]
             for token_to_delete in tokens_to_delete:

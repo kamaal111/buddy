@@ -4,16 +4,17 @@ from fastapi import Depends, Header
 from sqlmodel import Session
 
 from buddy.auth.models import User
+from buddy.auth.schemas import RequestUserHeaders
 from buddy.auth.utils.jwt_utils import decode_authorization_token
 from buddy.database import Databaseable, get_database
 
 
 def get_request_user(
-    authorization: Annotated[str, Header()],
+    headers: Annotated[RequestUserHeaders, Header()],
     database: Annotated[Databaseable, Depends(get_database)],
 ) -> Generator[User | None, Any, None]:
     claims = decode_authorization_token(
-        authorization_token=authorization, verify_exp=True
+        authorization_token=headers.authorization, verify_exp=True
     )
     if claims is None:
         return None

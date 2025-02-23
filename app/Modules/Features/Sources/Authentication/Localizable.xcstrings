@@ -16,6 +16,9 @@
     "Email" : {
 
     },
+    "Failed to load session." : {
+
+    },
     "Failed to log in." : {
 
     },
@@ -35,6 +38,9 @@
 
     },
     "Password must be the same as the password above" : {
+
+    },
+    "Session expired, please log in again." : {
 
     },
     "Sign In" : {

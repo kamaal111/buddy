@@ -9,9 +9,11 @@ from buddy.auth.middleware import get_request_user
 from buddy.auth.models import User
 from buddy.auth.schemas import (
     LoginResponse,
+    RefreshHeaders,
     RefreshPayload,
     RefreshResponse,
     RegisterResponse,
+    SessionHeaders,
     SessionResponse,
 )
 from buddy.schemas import ErrorResponse
@@ -90,6 +92,7 @@ def login(
     },
 )
 def session(
+    headers: Annotated[SessionHeaders, Header()],
     user: Annotated[User | None, Depends(get_request_user)],
     controller: Annotated[AuthControllable, Depends(get_auth_controller)],
 ):
@@ -116,10 +119,12 @@ def session(
 )
 def refresh(
     payload: RefreshPayload,
-    authorization: Annotated[str, Header()],
+    headers: Annotated[RefreshHeaders, Header()],
     user: Annotated[User | None, Depends(get_request_user)],
     controller: Annotated[AuthControllable, Depends(get_auth_controller)],
 ):
     return controller.refresh(
-        user=user, refresh_token=payload.refresh_token, access_token=authorization
+        user=user,
+        refresh_token=payload.refresh_token,
+        access_token=headers.authorization,
     )

@@ -11,7 +11,7 @@ public struct PingResponse: Codable {
     public let details: String
 }
 
-public struct BuddyHealthClient {
+public struct BuddyHealthClient: Sendable {
     private let client: Client
 
     init(client: Client) {
