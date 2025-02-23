@@ -4,7 +4,7 @@ from fastapi import Depends
 from sqlmodel import Session
 
 from buddy.auth.exceptions import InvalidCredentials
-from buddy.auth.models import User
+from buddy.auth.models import User, UserToken
 from buddy.auth.schemas import (
     LoginResponse,
     RegisterResponse,
@@ -47,11 +47,16 @@ class AuthController(AuthControllable):
             if not user.verify_password(raw_password=validated_payload.password):
                 raise InvalidCredentials
 
-            access_token = encode_jwt(user)
+            token = encode_jwt(user)
+            user_token = UserToken.create(user=user, session=session)
 
-        return LoginResponse(
-            access_token=access_token, token_type="bearer", detail="OK"
-        )
+            return LoginResponse(
+                detail="OK",
+                access_token=token.access_token,
+                token_type=token.token_type,
+                refresh_token=user_token.key,
+                expiry_timestamp=token.expiry_timestamp,
+            )
 
     def session(self, user) -> SessionResponse:
         return SessionResponse(detail="OK", user=UserResponse(email=user.email))

@@ -16,7 +16,7 @@ class BaseDatabase:
 
 
 def create_db_and_tables(database: Databaseable) -> None:
-    from buddy.auth.models import User  # noqa: F401
+    from buddy.auth.models import User, UserToken  # noqa: F401
 
     SQLModel.metadata.create_all(database.engine)
 

@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Form
+from fastapi import APIRouter, Depends, Form, Header
 from pydantic import EmailStr
 
 from buddy.auth.controller import AuthControllable, get_auth_controller
@@ -88,3 +88,10 @@ def session(
     controller: Annotated[AuthControllable, Depends(get_auth_controller)],
 ):
     return controller.session(user=user)
+
+
+@auth_router.post("/refresh", status_code=HTTPStatus.OK)
+def refresh(
+    refresh_token: Annotated[str, Header()],
+    user: Annotated[User, Depends(get_request_user)],
+): ...

@@ -13,8 +13,11 @@ def get_request_user(
     authorization: Annotated[str, Header()],
     database: Annotated[Databaseable, Depends(get_database)],
 ):
-    split_authorization = authorization.split("Bearer ")
+    split_authorization = authorization.split(" ")
     if len(split_authorization) != 2:
+        raise InvalidCredentials
+
+    if split_authorization[0].lower() != "bearer":
         raise InvalidCredentials
 
     try:

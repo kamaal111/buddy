@@ -42,13 +42,13 @@ final public class Authentication: @unchecked Sendable, ObservableObject {
                     return .generalFailure(context: error)
                 }
             }
-        let accessToken: BuddyAuthenticationLoginResponse
+        let response: BuddyAuthenticationLoginResponse
         switch result {
         case let .failure(failure): return .failure(failure)
-        case let .success(sucess): accessToken = sucess
+        case let .success(sucess): response = sucess
         }
 
-        print("🐸🐸🐸 accessToken", accessToken)
+        print("🐸🐸🐸 response", response)
 
         return .success(())
     }

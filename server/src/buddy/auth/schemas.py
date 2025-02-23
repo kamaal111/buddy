@@ -16,10 +16,12 @@ class RegisterResponse(BaseModel):
 
 class AccessToken(BaseModel):
     access_token: str
+    expiry_timestamp: int
     token_type: Literal["bearer"]
 
 
-class LoginResponse(AccessToken, OKResponse): ...
+class LoginResponse(AccessToken, OKResponse):
+    refresh_token: str
 
 
 class UserResponse(BaseModel):

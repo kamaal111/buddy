@@ -4,19 +4,26 @@ import jwt
 from pydantic import BaseModel
 
 from buddy.auth.models import User
+from buddy.auth.schemas import AccessToken
 from buddy.conf import settings
 
 
-def encode_jwt(user: User) -> str:
+def encode_jwt(user: User) -> AccessToken:
     now = datetime.now(settings.tzinfo)
     expire = datetime.now(settings.tzinfo) + timedelta(
         minutes=settings.jwt_expire_minutes
     )
 
-    return jwt.encode(
+    access_token = jwt.encode(
         {"sub": str(user.id), "exp": expire, "iat": now},
         settings.jwt_secret_key,
         algorithm=settings.jwt_algorithm,
+    )
+
+    return AccessToken(
+        access_token=access_token,
+        expiry_timestamp=int(expire.timestamp()),
+        token_type="bearer",
     )
 
 

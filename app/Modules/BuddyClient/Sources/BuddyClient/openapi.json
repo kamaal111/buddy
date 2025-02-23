@@ -167,6 +167,52 @@
                     }
                 }
             }
+        },
+        "/app-api/v1/auth/refresh": {
+            "post": {
+                "summary": "Refresh",
+                "operationId": "refresh_app_api_v1_auth_refresh_post",
+                "parameters": [
+                    {
+                        "name": "refresh-token",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Refresh-Token"
+                        }
+                    },
+                    {
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Authorization"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful Response",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -243,6 +289,19 @@
                 ],
                 "title": "ErrorResponse"
             },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
             "LoginResponse": {
                 "properties": {
                     "detail": {
@@ -254,17 +313,27 @@
                         "type": "string",
                         "title": "Access Token"
                     },
+                    "expiry_timestamp": {
+                        "type": "integer",
+                        "title": "Expiry Timestamp"
+                    },
                     "token_type": {
                         "type": "string",
                         "const": "bearer",
                         "title": "Token Type"
+                    },
+                    "refresh_token": {
+                        "type": "string",
+                        "title": "Refresh Token"
                     }
                 },
                 "type": "object",
                 "required": [
                     "detail",
                     "access_token",
-                    "token_type"
+                    "expiry_timestamp",
+                    "token_type",
+                    "refresh_token"
                 ],
                 "title": "LoginResponse"
             },
@@ -327,6 +396,39 @@
                     "email"
                 ],
                 "title": "UserResponse"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
             }
         }
     }

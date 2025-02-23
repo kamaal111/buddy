@@ -1,3 +1,14 @@
+# ruff: noqa: E402
+
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+env_found = load_dotenv((Path(__file__).parent / "../../.env.testing"))
+
+assert env_found
+
+
 import uuid
 from http import HTTPStatus
 from pathlib import Path
@@ -7,7 +18,7 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session, create_engine, select
 
 from buddy.auth.models import User
-from buddy.auth.schemas import UserPayload
+from buddy.auth.schemas import LoginResponse, UserPayload
 from buddy.database import BaseDatabase, create_db_and_tables, get_database
 from buddy.main import app
 
@@ -57,7 +68,7 @@ def default_user(database, default_user_credentials):
 
 
 @pytest.fixture
-def default_user_access_token(client, default_user, default_user_credentials) -> str:
+def default_user_login(client, default_user, default_user_credentials) -> LoginResponse:
     login_response = client.post(
         "/app-api/v1/auth/login",
         data=default_user_credentials.model_dump(),
@@ -67,12 +78,13 @@ def default_user_access_token(client, default_user, default_user_credentials) ->
     assert login_response.status_code == HTTPStatus.OK
     assert json_response["detail"] == "OK"
     assert json_response["token_type"] == "bearer"
+    assert isinstance(json_response["refresh_token"], str)
 
     access_token = json_response["access_token"]
 
     assert isinstance(access_token, str)
 
-    return access_token
+    return LoginResponse(**json_response)
 
 
 @pytest.fixture(scope="function")

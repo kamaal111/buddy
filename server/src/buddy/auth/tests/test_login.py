@@ -1,14 +1,24 @@
 from http import HTTPStatus
 
 import pytest
+from sqlmodel import Session
 
+from buddy.auth.models import UserToken
 from buddy.auth.utils.jwt_utils import decode_jwt
 
 
-def test_login(default_user, default_user_access_token):
-    claims = decode_jwt(token=default_user_access_token)
+def test_login(database, default_user, default_user_login):
+    claims = decode_jwt(token=default_user_login.access_token)
 
     assert claims.sub == str(default_user.id)
+
+    with Session(database.engine) as session:
+        token = UserToken.get_last_created_token_for_user(
+            user=default_user, session=session
+        )
+
+        assert token is not None
+        assert default_user_login.refresh_token == token.key
 
 
 def test_incorrect_password(client, default_user_credentials):

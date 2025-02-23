@@ -10,6 +10,8 @@ import OpenAPIRuntime
 
 public struct BuddyAuthenticationLoginResponse: Codable {
     public let accessCode: String
+    public let refreshToken: String
+    public let expiryTimestamp: Int
 }
 
 public struct BuddyAuthenticationClient {
@@ -50,7 +52,11 @@ public struct BuddyAuthenticationClient {
         case let .ok(response):
             switch response.body {
             case let .json(jsonResponse):
-                return .success(BuddyAuthenticationLoginResponse(accessCode: jsonResponse.accessToken))
+                return .success(BuddyAuthenticationLoginResponse(
+                    accessCode: jsonResponse.accessToken,
+                    refreshToken: jsonResponse.refreshToken,
+                    expiryTimestamp: jsonResponse.expiryTimestamp
+                ))
             }
         }
     }
