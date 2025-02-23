@@ -174,15 +174,6 @@
                 "operationId": "refresh_app_api_v1_auth_refresh_post",
                 "parameters": [
                     {
-                        "name": "refresh-token",
-                        "in": "header",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "title": "Refresh-Token"
-                        }
-                    },
-                    {
                         "name": "authorization",
                         "in": "header",
                         "required": true,
@@ -192,21 +183,43 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RefreshPayload"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
-                        "description": "Successful Response",
+                        "description": "Return the refresh token for the user that is logged in.",
                         "content": {
                             "application/json": {
-                                "schema": {}
+                                "schema": {
+                                    "$ref": "#/components/schemas/RefreshResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials provided.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
                             }
                         }
                     },
                     "422": {
-                        "description": "Validation Error",
+                        "description": "Invalid payload provided.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                    "$ref": "#/components/schemas/ErrorResponse"
                                 }
                             }
                         }
@@ -289,19 +302,6 @@
                 ],
                 "title": "ErrorResponse"
             },
-            "HTTPValidationError": {
-                "properties": {
-                    "detail": {
-                        "items": {
-                            "$ref": "#/components/schemas/ValidationError"
-                        },
-                        "type": "array",
-                        "title": "Detail"
-                    }
-                },
-                "type": "object",
-                "title": "HTTPValidationError"
-            },
             "LoginResponse": {
                 "properties": {
                     "detail": {
@@ -351,6 +351,49 @@
                 ],
                 "title": "PingResponse"
             },
+            "RefreshPayload": {
+                "properties": {
+                    "refresh_token": {
+                        "type": "string",
+                        "title": "Refresh Token"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "refresh_token"
+                ],
+                "title": "RefreshPayload"
+            },
+            "RefreshResponse": {
+                "properties": {
+                    "detail": {
+                        "type": "string",
+                        "const": "OK",
+                        "title": "Detail"
+                    },
+                    "access_token": {
+                        "type": "string",
+                        "title": "Access Token"
+                    },
+                    "expiry_timestamp": {
+                        "type": "integer",
+                        "title": "Expiry Timestamp"
+                    },
+                    "token_type": {
+                        "type": "string",
+                        "const": "bearer",
+                        "title": "Token Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "detail",
+                    "access_token",
+                    "expiry_timestamp",
+                    "token_type"
+                ],
+                "title": "RefreshResponse"
+            },
             "RegisterResponse": {
                 "properties": {
                     "detail": {
@@ -396,39 +439,6 @@
                     "email"
                 ],
                 "title": "UserResponse"
-            },
-            "ValidationError": {
-                "properties": {
-                    "loc": {
-                        "items": {
-                            "anyOf": [
-                                {
-                                    "type": "string"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        },
-                        "type": "array",
-                        "title": "Location"
-                    },
-                    "msg": {
-                        "type": "string",
-                        "title": "Message"
-                    },
-                    "type": {
-                        "type": "string",
-                        "title": "Error Type"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "loc",
-                    "msg",
-                    "type"
-                ],
-                "title": "ValidationError"
             }
         }
     }

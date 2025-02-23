@@ -30,3 +30,10 @@ class UserResponse(BaseModel):
 
 class SessionResponse(OKResponse):
     user: UserResponse
+
+
+class RefreshPayload(BaseModel):
+    refresh_token: str
+
+
+class RefreshResponse(AccessToken, OKResponse): ...

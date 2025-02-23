@@ -7,7 +7,13 @@ from pydantic import EmailStr
 from buddy.auth.controller import AuthControllable, get_auth_controller
 from buddy.auth.middleware import get_request_user
 from buddy.auth.models import User
-from buddy.auth.schemas import LoginResponse, RegisterResponse, SessionResponse
+from buddy.auth.schemas import (
+    LoginResponse,
+    RefreshPayload,
+    RefreshResponse,
+    RegisterResponse,
+    SessionResponse,
+)
 from buddy.schemas import ErrorResponse
 
 auth_router = APIRouter(prefix="/auth")
@@ -84,14 +90,36 @@ def login(
     },
 )
 def session(
-    user: Annotated[User, Depends(get_request_user)],
+    user: Annotated[User | None, Depends(get_request_user)],
     controller: Annotated[AuthControllable, Depends(get_auth_controller)],
 ):
     return controller.session(user=user)
 
 
-@auth_router.post("/refresh", status_code=HTTPStatus.OK)
+@auth_router.post(
+    "/refresh",
+    status_code=HTTPStatus.OK,
+    responses={
+        HTTPStatus.OK: {
+            "model": RefreshResponse,
+            "description": "Return the refresh token for the user that is logged in.",
+        },
+        HTTPStatus.UNAUTHORIZED: {
+            "model": ErrorResponse,
+            "description": "Invalid credentials provided.",
+        },
+        HTTPStatus.UNPROCESSABLE_ENTITY: {
+            "model": ErrorResponse,
+            "description": "Invalid payload provided.",
+        },
+    },
+)
 def refresh(
-    refresh_token: Annotated[str, Header()],
-    user: Annotated[User, Depends(get_request_user)],
-): ...
+    payload: RefreshPayload,
+    authorization: Annotated[str, Header()],
+    user: Annotated[User | None, Depends(get_request_user)],
+    controller: Annotated[AuthControllable, Depends(get_auth_controller)],
+):
+    return controller.refresh(
+        user=user, refresh_token=payload.refresh_token, access_token=authorization
+    )

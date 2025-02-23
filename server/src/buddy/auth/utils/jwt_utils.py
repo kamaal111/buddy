@@ -33,14 +33,32 @@ class DecodedJWTToken(BaseModel):
     iat: int
 
 
-def decode_jwt(token: str) -> DecodedJWTToken:
+def decode_authorization_token(
+    authorization_token: str, verify_exp: bool = True
+) -> DecodedJWTToken | None:
+    split_authorization = authorization_token.split(" ")
+    if len(split_authorization) != 2:
+        return None
+
+    if split_authorization[0].lower() != "bearer":
+        return None
+
+    try:
+        claims = decode_jwt(token=split_authorization[1], verify_exp=verify_exp)
+    except Exception:
+        return None
+
+    return claims
+
+
+def decode_jwt(token: str, verify_exp: bool = True) -> DecodedJWTToken:
     decoded_token = jwt.decode(
         token,
         settings.jwt_secret_key,
         algorithms=[settings.jwt_algorithm],
         options={
             "require": ["exp", "iat", "sub"],
-            "verify_exp": True,
+            "verify_exp": verify_exp,
             "verify_signature": True,
             "verify_iat": True,
             "verify_sub": True,
