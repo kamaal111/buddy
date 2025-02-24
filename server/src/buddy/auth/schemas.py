@@ -28,18 +28,8 @@ class UserResponse(BaseModel):
     email: EmailStr
 
 
-class RequestUserHeaders(BaseModel):
-    authorization: str
-
-
-class SessionHeaders(RequestUserHeaders): ...
-
-
 class SessionResponse(OKResponse):
     user: UserResponse
-
-
-class RefreshHeaders(RequestUserHeaders): ...
 
 
 class RefreshPayload(BaseModel):

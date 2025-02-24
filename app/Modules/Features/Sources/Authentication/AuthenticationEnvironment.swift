@@ -15,10 +15,10 @@ extension View {
 }
 
 private struct AuthenticationEnvironment: ViewModifier {
-    private var authentication: Authentication
+    @StateObject private var authentication: Authentication
 
     init(authentication: Authentication) {
-        self.authentication = authentication
+        self._authentication = StateObject(wrappedValue: authentication)
     }
 
     func body(content: Content) -> some View {

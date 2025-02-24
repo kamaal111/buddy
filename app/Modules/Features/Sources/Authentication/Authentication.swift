@@ -22,7 +22,12 @@ public final class Authentication: @unchecked Sendable, ObservableObject {
     public init() {
         if let authorizationToken = getAuthorizationTokenFromKeychain() {
             setAuthorizationToken(authorizationToken)
-            Task { _ = await loadSession() }
+            Task {
+                _ = await loadSession()
+                DispatchQueue.main.async { [weak self] in
+                    self?.initiallyValidatingToken = false
+                }
+            }
         } else {
             self.initiallyValidatingToken = false
         }

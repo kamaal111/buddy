@@ -125,11 +125,12 @@
                 "operationId": "session_app_api_v1_auth_session_get",
                 "parameters": [
                     {
-                        "name": "headers",
+                        "name": "authorization",
                         "in": "header",
                         "required": true,
                         "schema": {
-                            "$ref": "#/components/schemas/RequestUserHeaders"
+                            "type": "string",
+                            "title": "Authorization"
                         }
                     }
                 ],
@@ -173,11 +174,12 @@
                 "operationId": "refresh_app_api_v1_auth_refresh_post",
                 "parameters": [
                     {
-                        "name": "headers",
+                        "name": "authorization",
                         "in": "header",
                         "required": true,
                         "schema": {
-                            "$ref": "#/components/schemas/RequestUserHeaders"
+                            "type": "string",
+                            "title": "Authorization"
                         }
                     }
                 ],
@@ -349,19 +351,6 @@
                 ],
                 "title": "PingResponse"
             },
-            "RefreshHeaders": {
-                "properties": {
-                    "authorization": {
-                        "type": "string",
-                        "title": "Authorization"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "authorization"
-                ],
-                "title": "RefreshHeaders"
-            },
             "RefreshPayload": {
                 "properties": {
                     "refresh_token": {
@@ -418,32 +407,6 @@
                     "detail"
                 ],
                 "title": "RegisterResponse"
-            },
-            "RequestUserHeaders": {
-                "properties": {
-                    "authorization": {
-                        "type": "string",
-                        "title": "Authorization"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "authorization"
-                ],
-                "title": "RequestUserHeaders"
-            },
-            "SessionHeaders": {
-                "properties": {
-                    "authorization": {
-                        "type": "string",
-                        "title": "Authorization"
-                    }
-                },
-                "type": "object",
-                "required": [
-                    "authorization"
-                ],
-                "title": "SessionHeaders"
             },
             "SessionResponse": {
                 "properties": {

@@ -14,7 +14,7 @@ public final class BuddyClient: Sendable {
     public let authentication: BuddyAuthenticationClient
 
     private init() {
-        let client = Client(serverURL: URL(string: "http://localhost:8000")!, transport: URLSessionTransport())
+        let client = Client(serverURL: ModuleConfig.baseURL, transport: URLSessionTransport())
         self.health = BuddyHealthClient(client: client)
         self.authentication = BuddyAuthenticationClient(client: client)
     }

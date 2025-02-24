@@ -5,15 +5,11 @@ from fastapi import APIRouter, Depends, Form, Header
 from pydantic import EmailStr
 
 from buddy.auth.controller import AuthControllable, get_auth_controller
-from buddy.auth.middleware import get_request_user
-from buddy.auth.models import User
 from buddy.auth.schemas import (
     LoginResponse,
-    RefreshHeaders,
     RefreshPayload,
     RefreshResponse,
     RegisterResponse,
-    SessionHeaders,
     SessionResponse,
 )
 from buddy.schemas import ErrorResponse
@@ -92,11 +88,10 @@ def login(
     },
 )
 def session(
-    headers: Annotated[SessionHeaders, Header()],
-    user: Annotated[User | None, Depends(get_request_user)],
+    authorization: Annotated[str, Header()],
     controller: Annotated[AuthControllable, Depends(get_auth_controller)],
 ):
-    return controller.session(user=user)
+    return controller.session(authorization=authorization)
 
 
 @auth_router.post(
@@ -119,12 +114,10 @@ def session(
 )
 def refresh(
     payload: RefreshPayload,
-    headers: Annotated[RefreshHeaders, Header()],
-    user: Annotated[User | None, Depends(get_request_user)],
+    authorization: Annotated[str, Header()],
     controller: Annotated[AuthControllable, Depends(get_auth_controller)],
 ):
     return controller.refresh(
-        user=user,
         refresh_token=payload.refresh_token,
-        access_token=headers.authorization,
+        authorization=authorization,
     )
