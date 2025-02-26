@@ -12,4 +12,7 @@ def test_session(client, default_user_credentials, default_user_login):
 
     assert session_response.status_code == HTTPStatus.OK
     assert session_json["detail"] == "OK"
-    assert session_json["user"] == {"email": default_user_credentials.email}
+    assert session_json["user"] == {
+        "email": default_user_credentials.email,
+        "tier": "FREE",
+    }

@@ -26,6 +26,7 @@ class LoginResponse(AccessToken, OKResponse):
 
 class UserResponse(BaseModel):
     email: EmailStr
+    tier: str
 
 
 class SessionResponse(OKResponse):

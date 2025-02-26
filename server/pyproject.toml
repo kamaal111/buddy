@@ -15,6 +15,7 @@ dependencies = [
     "pyjwt>=2.10.1",
     "pytz>=2025.1",
     "sqlalchemy>=2.0.38",
+    "sqlalchemy-utils>=0.41.2",
     "sqlmodel>=0.0.22",
     "uvicorn[standard]>=0.34.0",
 ]

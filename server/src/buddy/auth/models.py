@@ -8,14 +8,24 @@ from typing import Sequence
 import bcrypt
 from pydantic import EmailStr
 from sqlalchemy import Column, DateTime
-from sqlmodel import Field, SQLModel, Session, col, select
+from sqlalchemy_utils.types.choice import ChoiceType  # type: ignore
+from sqlmodel import Field, SQLModel, Session, String, col, select
 
 from buddy.auth.exceptions import UserAlreadyExists
 from buddy.auth.schemas import UserPayload
 from buddy.conf import settings
+from buddy.money.tiers import UserTiers
 from buddy.utils.datetime_utils import datetime_now_with_timezone
 
 PASSWORD_HASHING_ENCODING = "utf-8"
+
+USERS_TIER_MAX_LENGTH = 20
+USERS_DEFAULT_TIER = UserTiers.get_choices()[0][0]
+
+
+assert all(
+    map(lambda tier: len(tier[0]) < USERS_TIER_MAX_LENGTH, UserTiers.get_choices())
+)
 
 
 class User(SQLModel, table=True):
@@ -25,17 +35,23 @@ class User(SQLModel, table=True):
     email: EmailStr = Field(unique=True)
     password: str = Field(min_length=8)
     created_at: datetime = Field(
-        sa_column=Column(
-            DateTime(timezone=True), nullable=False, default=datetime_now_with_timezone
-        ),
+        sa_column=Column(DateTime(timezone=True), nullable=False),
+        default_factory=datetime_now_with_timezone,
     )
     updated_at: datetime = Field(
         sa_column=Column(
             DateTime(timezone=True),
             nullable=False,
-            default=datetime_now_with_timezone,
             onupdate=datetime_now_with_timezone,
         ),
+        default_factory=datetime_now_with_timezone,
+    )
+    tier: str = Field(
+        sa_column=Column(
+            ChoiceType(UserTiers.get_choices(), impl=String()), nullable=False
+        ),
+        max_length=USERS_TIER_MAX_LENGTH,
+        default=USERS_DEFAULT_TIER,
     )
 
     def verify_password(self, raw_password: str) -> bool:

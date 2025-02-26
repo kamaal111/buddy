@@ -16,6 +16,7 @@ from buddy.auth.schemas import (
 from buddy.auth.utils.jwt_utils import encode_jwt
 from buddy.auth.utils.user import get_user_by_authorization_token
 from buddy.database import Databaseable, get_database
+from buddy.money.tiers import UserTiers
 
 
 class AuthControllable(Protocol):
@@ -67,7 +68,10 @@ class AuthController(AuthControllable):
     async def session(self, user) -> SessionResponse:
         assert user is not None
 
-        return SessionResponse(detail="OK", user=UserResponse(email=user.email))
+        return SessionResponse(
+            detail="OK",
+            user=UserResponse(email=user.email, tier=UserTiers.get_by_key(user.tier)),
+        )
 
     async def refresh(self, refresh_token, authorization) -> RefreshResponse:
         user = get_user_by_authorization_token(
