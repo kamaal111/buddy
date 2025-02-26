@@ -1,4 +1,4 @@
-from typing import Any, Generator, Protocol
+from typing import Protocol
 
 from sqlalchemy import Engine
 from sqlmodel import SQLModel, create_engine
@@ -32,5 +32,5 @@ __database = Database()
 create_db_and_tables(__database)
 
 
-def get_database() -> Generator[Databaseable, Any, None]:
-    yield __database
+async def get_database() -> Databaseable:
+    return __database

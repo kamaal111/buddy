@@ -5,7 +5,9 @@ from buddy.auth.utils.jwt_utils import decode_authorization_token
 from buddy.database import Databaseable
 
 
-def get_request_user(authorization: str, database: Databaseable, verify_exp=True):
+def get_user_by_authorization_token(
+    authorization: str, database: Databaseable, verify_exp=True
+):
     claims = decode_authorization_token(
         authorization_token=authorization, verify_exp=verify_exp
     )

@@ -5,6 +5,8 @@ from fastapi import APIRouter, Depends, Form, Header
 from pydantic import EmailStr
 
 from buddy.auth.controller import AuthControllable, get_auth_controller
+from buddy.auth.middleware import get_request_user
+from buddy.auth.models import User
 from buddy.auth.schemas import (
     LoginResponse,
     RefreshPayload,
@@ -35,12 +37,12 @@ auth_router = APIRouter(prefix="/auth")
         },
     },
 )
-def register(
+async def register(
     email: Annotated[EmailStr, Form()],
     password: Annotated[str, Form()],
     controller: Annotated[AuthControllable, Depends(get_auth_controller)],
 ) -> RegisterResponse:
-    return controller.register(email=email, password=password)
+    return await controller.register(email=email, password=password)
 
 
 @auth_router.post(
@@ -61,12 +63,12 @@ def register(
         },
     },
 )
-def login(
+async def login(
     email: Annotated[EmailStr, Form()],
     password: Annotated[str, Form()],
     controller: Annotated[AuthControllable, Depends(get_auth_controller)],
 ) -> LoginResponse:
-    return controller.login(email=email, password=password)
+    return await controller.login(email=email, password=password)
 
 
 @auth_router.get(
@@ -87,11 +89,11 @@ def login(
         },
     },
 )
-def session(
-    authorization: Annotated[str, Header()],
+async def session(
+    user: Annotated[User, Depends(get_request_user)],
     controller: Annotated[AuthControllable, Depends(get_auth_controller)],
 ):
-    return controller.session(authorization=authorization)
+    return await controller.session(user=user)
 
 
 @auth_router.post(
@@ -112,12 +114,12 @@ def session(
         },
     },
 )
-def refresh(
+async def refresh(
     payload: RefreshPayload,
     authorization: Annotated[str, Header()],
     controller: Annotated[AuthControllable, Depends(get_auth_controller)],
 ):
-    return controller.refresh(
+    return await controller.refresh(
         refresh_token=payload.refresh_token,
         authorization=authorization,
     )

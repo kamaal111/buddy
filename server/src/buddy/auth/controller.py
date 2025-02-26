@@ -1,4 +1,4 @@
-from typing import Annotated, Any, Generator, Protocol
+from typing import Annotated, Protocol
 
 from fastapi import Depends
 from sqlmodel import Session
@@ -14,34 +14,36 @@ from buddy.auth.schemas import (
     UserResponse,
 )
 from buddy.auth.utils.jwt_utils import encode_jwt
-from buddy.auth.utils.user import get_request_user
+from buddy.auth.utils.user import get_user_by_authorization_token
 from buddy.database import Databaseable, get_database
 
 
 class AuthControllable(Protocol):
     database: Databaseable
 
-    def register(self, email: str, password: str) -> RegisterResponse: ...
+    async def register(self, email: str, password: str) -> RegisterResponse: ...
 
-    def login(self, email: str, password: str) -> LoginResponse: ...
+    async def login(self, email: str, password: str) -> LoginResponse: ...
 
-    def session(self, authorization: str | None) -> SessionResponse: ...
+    async def session(self, user: User) -> SessionResponse: ...
 
-    def refresh(self, refresh_token: str, authorization: str) -> RefreshResponse: ...
+    async def refresh(
+        self, refresh_token: str, authorization: str
+    ) -> RefreshResponse: ...
 
 
 class AuthController(AuthControllable):
     def __init__(self, database: Databaseable) -> None:
         self.database = database
 
-    def register(self, email, password) -> RegisterResponse:
+    async def register(self, email, password) -> RegisterResponse:
         validated_payload = UserPayload(email=email, password=password)
         with Session(self.database.engine) as session:
             User.create(payload=validated_payload, session=session)
 
             return RegisterResponse(detail="Created")
 
-    def login(self, email, password) -> LoginResponse:
+    async def login(self, email, password) -> LoginResponse:
         validated_payload = UserPayload(email=email, password=password)
         with Session(self.database.engine) as session:
             user = User.get_by_email(email=validated_payload.email, session=session)
@@ -62,15 +64,13 @@ class AuthController(AuthControllable):
                 expiry_timestamp=token.expiry_timestamp,
             )
 
-    def session(self, authorization) -> SessionResponse:
-        user = get_request_user(authorization=authorization, database=self.database)
-        if user is None:
-            raise InvalidCredentials
+    async def session(self, user) -> SessionResponse:
+        assert user is not None
 
         return SessionResponse(detail="OK", user=UserResponse(email=user.email))
 
-    def refresh(self, refresh_token, authorization) -> RefreshResponse:
-        user = get_request_user(
+    async def refresh(self, refresh_token, authorization) -> RefreshResponse:
+        user = get_user_by_authorization_token(
             authorization=authorization, database=self.database, verify_exp=False
         )
         if user is None:
@@ -97,8 +97,7 @@ class AuthController(AuthControllable):
             )
 
 
-def get_auth_controller(
+async def get_auth_controller(
     database: Annotated[Databaseable, Depends(get_database)],
-) -> Generator[AuthControllable, Any, None]:
-    controller = AuthController(database=database)
-    yield controller
+) -> AuthControllable:
+    return AuthController(database=database)
