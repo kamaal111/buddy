@@ -16,3 +16,4 @@ def test_session(client, default_user_credentials, default_user_login):
         "email": default_user_credentials.email,
         "tier": "FREE",
     }
+    assert session_json["available_models"] == [{"provider": "openai", "key": "gpt-4o"}]

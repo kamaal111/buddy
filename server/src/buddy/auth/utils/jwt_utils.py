@@ -1,11 +1,16 @@
+from __future__ import annotations
+
 from datetime import datetime, timedelta
+from typing import TYPE_CHECKING
 
 import jwt
 from pydantic import BaseModel
 
-from buddy.auth.models import User
 from buddy.auth.schemas import AccessToken
 from buddy.conf import settings
+
+if TYPE_CHECKING:
+    from buddy.auth.models import User
 
 
 def encode_jwt(user: User) -> AccessToken:

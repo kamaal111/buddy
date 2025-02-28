@@ -16,9 +16,20 @@ public struct BuddyAuthenticationLoginResponse: Codable, Sendable {
 
 public struct BuddyAuthenticationSessionResponse: Codable, Sendable {
     public let user: User
+    public let availableModels: [AvailableModel]
 
     public struct User: Codable, Sendable {
         public let email: String
+    }
+
+    public struct AvailableModel: Codable, Sendable {
+        public let provider: String
+        public let key: String
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case user
+        case availableModels = "available_models"
     }
 }
 
@@ -53,6 +64,7 @@ public struct BuddyAuthenticationClient: Sendable {
         var request = URLRequest(url: url)
         request.allHTTPHeaderFields = ["Authorization": "Bearer \(authorization)"]
         request.httpBody = payload
+        request.httpMethod = "POST"
         let output: (Data, URLResponse)
         do {
             output = try await URLSession.shared.data(for: request)

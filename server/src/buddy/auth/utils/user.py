@@ -1,8 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from sqlmodel import Session
 
 from buddy.auth.models import User
 from buddy.auth.utils.jwt_utils import decode_authorization_token
-from buddy.database import Databaseable
+
+if TYPE_CHECKING:
+    from buddy.database import Databaseable
 
 
 def get_user_by_authorization_token(

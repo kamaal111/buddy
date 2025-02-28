@@ -3,7 +3,7 @@ from __future__ import annotations
 import binascii
 import os
 from datetime import datetime
-from typing import Sequence
+from typing import TYPE_CHECKING, Sequence
 
 import bcrypt
 from pydantic import EmailStr
@@ -12,15 +12,16 @@ from sqlalchemy_utils.types.choice import ChoiceType  # type: ignore
 from sqlmodel import Field, SQLModel, Session, String, col, select
 
 from buddy.auth.exceptions import UserAlreadyExists
-from buddy.auth.schemas import UserPayload
 from buddy.conf import settings
 from buddy.money.tiers import UserTiers
 from buddy.utils.datetime_utils import datetime_now_with_timezone
 
+if TYPE_CHECKING:
+    from buddy.auth.schemas import UserPayload
+
 PASSWORD_HASHING_ENCODING = "utf-8"
 
 USERS_TIER_MAX_LENGTH = 20
-USERS_DEFAULT_TIER = UserTiers.get_choices()[0][0]
 
 
 assert all(
@@ -51,8 +52,15 @@ class User(SQLModel, table=True):
             ChoiceType(UserTiers.get_choices(), impl=String()), nullable=False
         ),
         max_length=USERS_TIER_MAX_LENGTH,
-        default=USERS_DEFAULT_TIER,
+        default=UserTiers.FREE.name,
     )
+
+    @property
+    def formatted_tier(self) -> UserTiers | None:
+        tier = UserTiers.get_by_key(self.tier)
+        assert isinstance(tier, UserTiers)
+
+        return tier
 
     def verify_password(self, raw_password: str) -> bool:
         return bcrypt.checkpw(

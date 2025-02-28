@@ -1,13 +1,27 @@
-from collections import OrderedDict
+from enum import auto
 
-_USER_TIERS = OrderedDict([("FREE", "FREE")])
+from buddy.utils.enum_utils import AutoNameEnum
 
 
-class UserTiers:
+class UserTiers(str, AutoNameEnum):
+    FREE = auto()
+
     @staticmethod
     def get_by_key(key: str):
-        return _USER_TIERS[key]
+        tier = UserTiers.__members__.get(key)
+        if tier is None:
+            return None
+
+        return tier
 
     @staticmethod
-    def get_choices():
-        return list(_USER_TIERS.items())
+    def get_choices() -> list[tuple[str, str]]:
+        choices = []
+        for key, tier in UserTiers.__members__.items():
+            assert isinstance(tier.name, str)
+            choices.append((key, tier.name))
+
+        assert len(choices) > 0
+        assert choices[0][0] == "FREE"
+
+        return choices

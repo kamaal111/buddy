@@ -16,35 +16,33 @@ from buddy.auth.schemas import (
 from buddy.auth.utils.jwt_utils import encode_jwt
 from buddy.auth.utils.user import get_user_by_authorization_token
 from buddy.database import Databaseable, get_database
-from buddy.money.tiers import UserTiers
+from buddy.llm.providers import get_models_available_to_user
 
 
 class AuthControllable(Protocol):
     database: Databaseable
 
-    async def register(self, email: str, password: str) -> RegisterResponse: ...
+    def register(self, email: str, password: str) -> RegisterResponse: ...
 
-    async def login(self, email: str, password: str) -> LoginResponse: ...
+    def login(self, email: str, password: str) -> LoginResponse: ...
 
-    async def session(self, user: User) -> SessionResponse: ...
+    def session(self, user: User) -> SessionResponse: ...
 
-    async def refresh(
-        self, refresh_token: str, authorization: str
-    ) -> RefreshResponse: ...
+    def refresh(self, refresh_token: str, authorization: str) -> RefreshResponse: ...
 
 
 class AuthController(AuthControllable):
     def __init__(self, database: Databaseable) -> None:
         self.database = database
 
-    async def register(self, email, password) -> RegisterResponse:
+    def register(self, email, password) -> RegisterResponse:
         validated_payload = UserPayload(email=email, password=password)
         with Session(self.database.engine) as session:
             User.create(payload=validated_payload, session=session)
 
             return RegisterResponse(detail="Created")
 
-    async def login(self, email, password) -> LoginResponse:
+    def login(self, email, password) -> LoginResponse:
         validated_payload = UserPayload(email=email, password=password)
         with Session(self.database.engine) as session:
             user = User.get_by_email(email=validated_payload.email, session=session)
@@ -65,15 +63,23 @@ class AuthController(AuthControllable):
                 expiry_timestamp=token.expiry_timestamp,
             )
 
-    async def session(self, user) -> SessionResponse:
+    def session(self, user) -> SessionResponse:
         assert user is not None
 
-        return SessionResponse(
+        user_tier = user.formatted_tier
+        tier = user_tier.name if user_tier is not None else None
+        assert tier
+        assert isinstance(tier, str)
+
+        response = SessionResponse(
             detail="OK",
-            user=UserResponse(email=user.email, tier=UserTiers.get_by_key(user.tier)),
+            user=UserResponse(email=user.email, tier=tier),
+            available_models=get_models_available_to_user(user=user),
         )
 
-    async def refresh(self, refresh_token, authorization) -> RefreshResponse:
+        return response
+
+    def refresh(self, refresh_token, authorization) -> RefreshResponse:
         user = get_user_by_authorization_token(
             authorization=authorization, database=self.database, verify_exp=False
         )

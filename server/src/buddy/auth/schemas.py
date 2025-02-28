@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 from typing import Literal
 
 from pydantic import BaseModel, EmailStr, Field
 
+from buddy.llm.schemas import LLMModel
 from buddy.schemas import OKResponse
 
 
@@ -26,11 +29,12 @@ class LoginResponse(AccessToken, OKResponse):
 
 class UserResponse(BaseModel):
     email: EmailStr
-    tier: str
+    tier: str | None
 
 
 class SessionResponse(OKResponse):
     user: UserResponse
+    available_models: list[LLMModel]
 
 
 class RefreshPayload(BaseModel):

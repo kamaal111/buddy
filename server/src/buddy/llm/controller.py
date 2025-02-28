@@ -1,9 +1,13 @@
-from typing import Annotated, Protocol
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Annotated, Protocol
 
 from fastapi import Depends
 
 from buddy.auth.middleware import get_request_user
-from buddy.auth.models import User
+
+if TYPE_CHECKING:
+    from buddy.auth.models import User
 
 
 class LLMControllable(Protocol):

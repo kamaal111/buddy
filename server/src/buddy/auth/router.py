@@ -37,12 +37,12 @@ auth_router = APIRouter(prefix="/auth")
         },
     },
 )
-async def register(
+def register(
     email: Annotated[EmailStr, Form()],
     password: Annotated[str, Form()],
     controller: Annotated[AuthControllable, Depends(get_auth_controller)],
 ) -> RegisterResponse:
-    return await controller.register(email=email, password=password)
+    return controller.register(email=email, password=password)
 
 
 @auth_router.post(
@@ -63,12 +63,12 @@ async def register(
         },
     },
 )
-async def login(
+def login(
     email: Annotated[EmailStr, Form()],
     password: Annotated[str, Form()],
     controller: Annotated[AuthControllable, Depends(get_auth_controller)],
 ) -> LoginResponse:
-    return await controller.login(email=email, password=password)
+    return controller.login(email=email, password=password)
 
 
 @auth_router.get(
@@ -89,11 +89,11 @@ async def login(
         },
     },
 )
-async def session(
+def session(
     user: Annotated[User, Depends(get_request_user)],
     controller: Annotated[AuthControllable, Depends(get_auth_controller)],
 ):
-    return await controller.session(user=user)
+    return controller.session(user=user)
 
 
 @auth_router.post(
@@ -114,12 +114,12 @@ async def session(
         },
     },
 )
-async def refresh(
+def refresh(
     payload: RefreshPayload,
     authorization: Annotated[str, Header()],
     controller: Annotated[AuthControllable, Depends(get_auth_controller)],
 ):
-    return await controller.refresh(
+    return controller.refresh(
         refresh_token=payload.refresh_token,
         authorization=authorization,
     )
