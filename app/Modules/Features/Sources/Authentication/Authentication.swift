@@ -11,7 +11,7 @@ import BuddyClient
 
 public final class Authentication: @unchecked Sendable, ObservableObject {
     @Published private(set) var initiallyValidatingToken = true
-    @Published private var session: LoggedInSession?
+    @Published public private(set) var session: LoggedInSession?
 
     private let client = BuddyClient.shared
     private let logger = Logger(subsystem: ModuleConfig.identifier, category: String(describing: Authentication.self))
@@ -123,7 +123,15 @@ public final class Authentication: @unchecked Sendable, ObservableObject {
         case let .success(success): response = success
         }
 
-        await setSession(.init(user: .init(email: response.user.email)))
+        let availableModels = response.availableModels.map({ availableModel in
+            LLMModel(
+                provider: availableModel.provider,
+                key: availableModel.key,
+                displayName: availableModel.displayName,
+                description: availableModel.description
+            )
+        })
+        await setSession(.init(user: .init(email: response.user.email), availableModels: availableModels))
 
         return .success(())
     }

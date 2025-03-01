@@ -7,7 +7,19 @@ from buddy.money.tiers import UserTiers
 
 _NAME = "openai"
 _MODELS_MAPPED_BY_TIER: OrderedDict[UserTiers, list[LLMModel]] = OrderedDict(
-    [(UserTiers.FREE, [LLMModel(provider=_NAME, key="gpt-4o")])]
+    [
+        (
+            UserTiers.FREE,
+            [
+                LLMModel(
+                    provider=_NAME,
+                    key="gpt-4o",
+                    display_name="GPT-4o",
+                    description="Excels at fast, accurate, and multimodal AI interactions.",
+                )
+            ],
+        )
+    ]
 )
 
 

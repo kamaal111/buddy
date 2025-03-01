@@ -37,5 +37,6 @@ struct MessageTextField: View {
 }
 
 #Preview {
+    MessageTextField(message: .constant(""), onSubmit: { _ in true })
     MessageTextField(message: .constant("Hello"), onSubmit: { _ in true })
 }

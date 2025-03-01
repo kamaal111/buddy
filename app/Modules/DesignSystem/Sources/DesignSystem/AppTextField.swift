@@ -122,10 +122,10 @@ public struct AppTextField: View {
                 HStack {
                     JustStack {
                         if showPassword {
-                            TextField("", text: $text)
+                            TextField(title, text: $text)
                                 .focused($isFocused)
                         } else {
-                            SecureField("", text: $text)
+                            SecureField(title, text: $text)
                                 .focused($isFocused)
                         }
                     }
@@ -136,11 +136,11 @@ public struct AppTextField: View {
                 }
             } else {
                 #if canImport(UIKit)
-                TextField("", text: $text)
+                TextField(title, text: $text)
                     .focused($isFocused)
                     .keyboardType(variant.keyboardType)
                 #else
-                TextField("", text: $text)
+                TextField(title, text: $text)
                     .focused($isFocused)
                 #endif
             }

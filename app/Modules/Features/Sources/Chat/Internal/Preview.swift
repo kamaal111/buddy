@@ -6,9 +6,13 @@
 //
 
 import SwiftUI
+import Authentication
 
 extension View {
     func preview() -> some View {
-        self
+        let authentication = Authentication()
+
+        return self
+            .authenticationEnvironment(authentication: authentication)
     }
 }

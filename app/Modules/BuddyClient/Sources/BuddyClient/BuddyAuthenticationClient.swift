@@ -20,6 +20,15 @@ public struct BuddyAuthenticationSessionResponse: Codable, Sendable {
     public struct AvailableModel: Codable, Sendable {
         public let provider: String
         public let key: String
+        public let displayName: String
+        public let description: String
+
+        enum CodingKeys: String, CodingKey {
+            case provider
+            case key
+            case displayName = "display_name"
+            case description
+        }
     }
 
     enum CodingKeys: String, CodingKey {

@@ -7,9 +7,13 @@
 
 import SwiftUI
 import DesignSystem
+import Authentication
 
 public struct ChatScreen: View {
+    @EnvironmentObject private var authentication: Authentication
+
     @State private var textFieldMessage = ""
+    @State private var selectedModel: LLMModel?
 
     public init() { }
 
@@ -17,9 +21,27 @@ public struct ChatScreen: View {
         VStack {
             Spacer()
             MessageTextField(message: $textFieldMessage, onSubmit: handleSubmit)
+            if selectedModel != nil {
+                Picker("", selection: $selectedModel) {
+                    ForEach(availableModels, id: \.self) { model in
+                        Text(model.displayName)
+                            .tag(model)
+                    }
+                }
+                .labelsHidden()
+            }
         }
         .padding(.all, .medium)
         .frame(minWidth: AppConfig.screenMinSize.width, minHeight: AppConfig.screenMinSize.height)
+        .onAppear {
+            guard !availableModels.isEmpty else { return }
+
+            selectedModel = availableModels.first
+        }
+    }
+
+    private var availableModels: [LLMModel] {
+        authentication.session?.availableModels ?? []
     }
 
     private func handleSubmit(_ message: String) -> Bool {
