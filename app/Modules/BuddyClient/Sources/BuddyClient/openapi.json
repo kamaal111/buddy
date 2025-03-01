@@ -226,6 +226,65 @@
                     }
                 }
             }
+        },
+        "/app-api/v1/llm/chat": {
+            "post": {
+                "summary": "Chat",
+                "operationId": "chat_app_api_v1_llm_chat_post",
+                "parameters": [
+                    {
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Authorization"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChatPayload"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Return the chat response after sending a message.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ChatResponse"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden LLM has been selected",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -286,6 +345,37 @@
                 ],
                 "title": "BuddyErrorDetail"
             },
+            "ChatPayload": {
+                "properties": {
+                    "llm_provider": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Llm Provider"
+                    },
+                    "llm_key": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Llm Key"
+                    },
+                    "message": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Message"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "llm_provider",
+                    "llm_key",
+                    "message"
+                ],
+                "title": "ChatPayload"
+            },
+            "ChatResponse": {
+                "properties": {},
+                "type": "object",
+                "title": "ChatResponse"
+            },
             "ErrorResponse": {
                 "properties": {
                     "detail": {
@@ -301,6 +391,47 @@
                     "detail"
                 ],
                 "title": "ErrorResponse"
+            },
+            "HTTPValidationError": {
+                "properties": {
+                    "detail": {
+                        "items": {
+                            "$ref": "#/components/schemas/ValidationError"
+                        },
+                        "type": "array",
+                        "title": "Detail"
+                    }
+                },
+                "type": "object",
+                "title": "HTTPValidationError"
+            },
+            "LLMModel": {
+                "properties": {
+                    "provider": {
+                        "type": "string",
+                        "title": "Provider"
+                    },
+                    "key": {
+                        "type": "string",
+                        "title": "Key"
+                    },
+                    "display_name": {
+                        "type": "string",
+                        "title": "Display Name"
+                    },
+                    "description": {
+                        "type": "string",
+                        "title": "Description"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "provider",
+                    "key",
+                    "display_name",
+                    "description"
+                ],
+                "title": "LLMModel"
             },
             "LoginResponse": {
                 "properties": {
@@ -417,12 +548,20 @@
                     },
                     "user": {
                         "$ref": "#/components/schemas/UserResponse"
+                    },
+                    "available_models": {
+                        "items": {
+                            "$ref": "#/components/schemas/LLMModel"
+                        },
+                        "type": "array",
+                        "title": "Available Models"
                     }
                 },
                 "type": "object",
                 "required": [
                     "detail",
-                    "user"
+                    "user",
+                    "available_models"
                 ],
                 "title": "SessionResponse"
             },
@@ -432,14 +571,60 @@
                         "type": "string",
                         "format": "email",
                         "title": "Email"
+                    },
+                    "tier": {
+                        "anyOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Tier"
                     }
                 },
                 "type": "object",
                 "required": [
-                    "email"
+                    "email",
+                    "tier"
                 ],
                 "title": "UserResponse"
+            },
+            "ValidationError": {
+                "properties": {
+                    "loc": {
+                        "items": {
+                            "anyOf": [
+                                {
+                                    "type": "string"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "type": "array",
+                        "title": "Location"
+                    },
+                    "msg": {
+                        "type": "string",
+                        "title": "Message"
+                    },
+                    "type": {
+                        "type": "string",
+                        "title": "Error Type"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "loc",
+                    "msg",
+                    "type"
+                ],
+                "title": "ValidationError"
             }
         }
     }
+
 }

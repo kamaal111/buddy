@@ -16,7 +16,7 @@ from buddy.auth.schemas import (
 from buddy.auth.utils.jwt_utils import encode_jwt
 from buddy.auth.utils.user import get_user_by_authorization_token
 from buddy.database import Databaseable, get_database
-from buddy.llm.providers import get_models_available_to_user
+from buddy.llm.providers import get_model_list_available_to_user
 
 
 class AuthControllable(Protocol):
@@ -74,7 +74,7 @@ class AuthController(AuthControllable):
         response = SessionResponse(
             detail="OK",
             user=UserResponse(email=user.email, tier=tier),
-            available_models=get_models_available_to_user(user=user),
+            available_models=get_model_list_available_to_user(user=user),
         )
 
         return response

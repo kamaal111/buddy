@@ -38,7 +38,7 @@ _MODELS: list[LLMModel] = reduce(__reduce_model, _MODELS_MAPPED_BY_TIER.items(),
 
 
 class OpenAIProvider(LLMProviderable):
-    def get_models_available_to_user(self, user) -> list[LLMModel]:
+    def get_model_list_available_to_user(self, user) -> list[LLMModel]:
         tier = user.formatted_tier
         assert tier is not None
 
