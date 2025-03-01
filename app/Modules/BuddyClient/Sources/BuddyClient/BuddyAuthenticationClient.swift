@@ -43,7 +43,7 @@ public struct BuddyAuthenticationRefreshResponse: Codable, Sendable {
     }
 }
 
-public struct BuddyAuthenticationClient: Sendable {
+public final class BuddyAuthenticationClient: Sendable {
     private let client: Client
     private let jsonDecoder = JSONDecoder()
     private let jsonEncoder = JSONEncoder()
@@ -62,7 +62,10 @@ public struct BuddyAuthenticationClient: Sendable {
 
         let url = baseURL.appending(path: "refresh")
         var request = URLRequest(url: url)
-        request.allHTTPHeaderFields = ["Authorization": "Bearer \(authorization)"]
+        request.allHTTPHeaderFields = [
+            "Authorization": "Bearer \(authorization)",
+            "Content-Type": "application/json"
+        ]
         request.httpBody = payload
         request.httpMethod = "POST"
         let output: (Data, URLResponse)

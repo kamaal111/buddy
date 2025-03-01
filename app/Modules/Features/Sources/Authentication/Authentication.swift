@@ -140,8 +140,7 @@ public final class Authentication: @unchecked Sendable, ObservableObject {
 
     @MainActor
     private func invalidateAuthorizationToken() {
-        #warning("Add back after debugging refresh token")
-//        Keychain.delete(forKey: KeychainKeys.authorizationToken.key)
+        Keychain.delete(forKey: KeychainKeys.authorizationToken.key)
         session = nil
         authorizationToken = nil
     }
