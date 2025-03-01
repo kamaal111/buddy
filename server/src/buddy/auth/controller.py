@@ -53,13 +53,13 @@ class AuthController(AuthControllable):
                 raise InvalidCredentials
 
             token = encode_jwt(user)
-            user_token = UserToken.create(user=user, session=session)
+            refresh_token = UserToken.create(user=user, session=session)
 
             return LoginResponse(
                 detail="OK",
                 access_token=token.access_token,
                 token_type=token.token_type,
-                refresh_token=user_token.key,
+                refresh_token=refresh_token,
                 expiry_timestamp=token.expiry_timestamp,
             )
 
@@ -90,7 +90,7 @@ class AuthController(AuthControllable):
             user_tokens = UserToken.get_all_for_user(user=user, session=session)
             found_user_token = None
             for user_token in user_tokens:
-                if user_token.key == refresh_token:
+                if user_token.verify_key(refresh_token):
                     found_user_token = user_token
                     break
 

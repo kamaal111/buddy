@@ -18,7 +18,7 @@ def test_login(database, default_user, default_user_login):
         )
 
         assert token is not None
-        assert default_user_login.refresh_token == token.key
+        assert token.verify_key(default_user_login.refresh_token)
 
 
 def test_incorrect_password(client, default_user_credentials):

@@ -19,7 +19,7 @@ from buddy.utils.datetime_utils import datetime_now_with_timezone
 if TYPE_CHECKING:
     from buddy.auth.schemas import UserPayload
 
-PASSWORD_HASHING_ENCODING = "utf-8"
+HASHING_ENCODING = "utf-8"
 
 USERS_TIER_MAX_LENGTH = 20
 
@@ -64,8 +64,8 @@ class User(SQLModel, table=True):
 
     def verify_password(self, raw_password: str) -> bool:
         return bcrypt.checkpw(
-            raw_password.encode(PASSWORD_HASHING_ENCODING),
-            self.password.encode(PASSWORD_HASHING_ENCODING),
+            raw_password.encode(HASHING_ENCODING),
+            self.password.encode(HASHING_ENCODING),
         )
 
     @staticmethod
@@ -88,8 +88,8 @@ class User(SQLModel, table=True):
 
         salt = bcrypt.gensalt()
         hashed_password = bcrypt.hashpw(
-            payload.password.encode(PASSWORD_HASHING_ENCODING), salt
-        ).decode(PASSWORD_HASHING_ENCODING)
+            payload.password.encode(HASHING_ENCODING), salt
+        ).decode(HASHING_ENCODING)
         user = User(email=payload.email, password=hashed_password)
 
         session.add(user)
@@ -135,7 +135,7 @@ class UserToken(SQLModel, table=True):
         return session.exec(query).first()
 
     @classmethod
-    def create(cls, user: User, session: Session) -> UserToken:
+    def create(cls, user: User, session: Session) -> str:
         tokens_for_user = cls.get_all_for_user(user=user, session=session)
         tokens_to_delete_amount = len(tokens_for_user) - (
             settings.refresh_tokens_per_user - 1
@@ -150,12 +150,24 @@ class UserToken(SQLModel, table=True):
             for token_to_delete in tokens_to_delete:
                 session.delete(token_to_delete)
 
-        token = UserToken(key=cls.__generate_refresh_token(), user_id=user.id)
+        refresh_token = cls.__generate_refresh_token()
+        salt = bcrypt.gensalt()
+        hashed_refresh_token = bcrypt.hashpw(
+            refresh_token.encode(HASHING_ENCODING), salt
+        ).decode(HASHING_ENCODING)
+
+        token = UserToken(key=hashed_refresh_token, user_id=user.id)
         session.add(token)
 
         session.commit()
 
-        return token
+        return refresh_token
+
+    def verify_key(self, raw_key: str) -> bool:
+        return bcrypt.checkpw(
+            raw_key.encode(HASHING_ENCODING),
+            self.key.encode(HASHING_ENCODING),
+        )
 
     @staticmethod
     def __generate_refresh_token() -> str:

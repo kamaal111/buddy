@@ -12,11 +12,12 @@ def test_user_token(database, default_user):
         tokens = UserToken.get_all_for_user(user=default_user, session=session)
 
         assert len(tokens) == 2
-        assert token1.id not in map(lambda token: token.id, tokens)
+        for token in tokens:
+            assert not token.verify_key(token1)
 
         token = UserToken.get_last_created_token_for_user(
             user=default_user, session=session
         )
 
         assert token is not None
-        assert token3.id is token.id
+        assert token.verify_key(token3)

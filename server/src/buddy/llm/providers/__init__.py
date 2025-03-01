@@ -26,10 +26,12 @@ def __reduce_provider(acc: Providers, provider: LLMProviderable) -> Providers:
 PROVIDERS: Providers = reduce(__reduce_provider, __PROVIDERS, OrderedDict())
 
 
-def get_models_available_to_user(user: User) -> chain[LLMModel]:
-    return chain.from_iterable(
-        map(
-            lambda provider: provider.get_models_available_to_user(user),
-            PROVIDERS.values(),
+def get_models_available_to_user(user: User) -> list[LLMModel]:
+    return list(
+        chain.from_iterable(
+            map(
+                lambda provider: provider.get_models_available_to_user(user),
+                PROVIDERS.values(),
+            )
         )
     )
