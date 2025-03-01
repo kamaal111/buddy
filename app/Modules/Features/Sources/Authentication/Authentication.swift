@@ -17,11 +17,9 @@ public final class Authentication: @unchecked Sendable, ObservableObject {
     private let logger = Logger(subsystem: ModuleConfig.identifier, category: String(describing: Authentication.self))
     private let jsonDecoder = JSONDecoder()
     private let jsonEncoder = JSONEncoder()
-    private var authorizationToken: AuthorizationToken?
 
     public init() {
-        if let authorizationToken = getAuthorizationTokenFromKeychain() {
-            setAuthorizationToken(authorizationToken)
+        if client.authentication.isAuthorized {
             Task {
                 _ = await loadSession()
                 DispatchQueue.main.async { [weak self] in
@@ -55,18 +53,10 @@ public final class Authentication: @unchecked Sendable, ObservableObject {
                     return .generalFailure(context: error)
                 }
             }
-        let response: BuddyAuthenticationLoginResponse
         switch result {
         case let .failure(failure): return .failure(failure)
-        case let .success(sucess): response = sucess
+        case .success: break
         }
-
-        let authorizationToken = AuthorizationToken(
-            accessToken: response.accessToken,
-            refreshToken: response.refreshToken,
-            expiryTimestamp: response.expiryTimestamp
-        )
-        setAuthorizationToken(authorizationToken)
 
         return await loadSession()
             .mapError { error -> AuthenticationLoginErrors in
@@ -100,103 +90,24 @@ public final class Authentication: @unchecked Sendable, ObservableObject {
             }
     }
 
-    func withUpToDateAuthorizationToken<T>(
-        _ callback: (_ authorizationToken: AuthorizationToken?) async -> T
-    ) async -> T {
-        guard let authorizationToken else {
-            logger.error("Authorization token not set for some reason")
-            assertionFailure()
-            return await callback(nil)
-        }
-
-        let updatedAuthorizationToken: AuthorizationToken
-        do {
-            updatedAuthorizationToken = try await refreshTokenIfExpired(authorizationToken: authorizationToken).get()
-        } catch {
-            return await callback(authorizationToken)
-        }
-
-        return await callback(updatedAuthorizationToken)
-    }
-
-    private func getAuthorizationTokenFromKeychain() -> AuthorizationToken? {
-        guard let authorizationTokenData = try? Keychain.get(forKey: KeychainKeys.authorizationToken.key).get()
-        else { return nil}
-
-        do {
-            return try jsonDecoder.decode(AuthorizationToken.self, from: authorizationTokenData)
-        } catch {
-            logger.error("Failed to decode authorization token; error='\(error)'")
-            Task { await invalidateAuthorizationToken() }
-            assertionFailure()
-            return nil
-        }
-    }
-
     @MainActor
     private func setSession(_ session: LoggedInSession) {
         self.session = session
     }
 
     @MainActor
-    private func invalidateAuthorizationToken() {
-        Keychain.delete(forKey: KeychainKeys.authorizationToken.key)
+    private func unsetSession() {
         session = nil
-        authorizationToken = nil
     }
 
     private func loadSession() async -> Result<Void, LoadSessionErorrs> {
-        await withUpToDateAuthorizationToken { authorizationToken in
-            guard let authorizationToken else {
-                logger.error("Authorization token not retrieved for some reason")
-                assertionFailure()
-                return .failure(.unauthorized(context: nil))
-            }
-
-            let result = await client.authentication.session(authorization: authorizationToken.accessToken)
-                .mapError { error -> LoadSessionErorrs in
-                    switch error {
-                    case .internalServerError:
-                        return .serverUnavailable(context: error)
-                    case .unauthorized:
-                        Task { await invalidateAuthorizationToken() }
-                        return .unauthorized(context: error)
-                    case .undocumentedError(let statusCode, let payload):
-                        assert(
-                            statusCode < 500,
-                            "Undocumented error found that could have been documented; statusCode='\(statusCode)'; payload='\(payload)'"
-                        )
-                        return .serverUnavailable(context: error)
-                    }
-                }
-            let response: BuddyAuthenticationSessionResponse
-            switch result {
-            case let .failure(failure): return .failure(failure)
-            case let .success(success): response = success
-            }
-
-            await setSession(.init(user: .init(email: response.user.email)))
-
-            return .success(())
-        }
-    }
-
-    private func refreshTokenIfExpired(
-        authorizationToken: AuthorizationToken
-    ) async -> Result<AuthorizationToken, LoadSessionErorrs> {
-        let timeleft = authorizationToken.expiryTimestamp - Int(Date.now.timeIntervalSince1970)
-        guard timeleft < 30 else { return .success(authorizationToken) }
-
-        let result = await client.authentication.refresh(
-            authorization: authorizationToken.accessToken,
-            refreshToken: authorizationToken.refreshToken
-        )
+        let result = await client.authentication.session()
             .mapError { error -> LoadSessionErorrs in
                 switch error {
                 case .internalServerError:
                     return .serverUnavailable(context: error)
                 case .unauthorized:
-                    Task { await invalidateAuthorizationToken() }
+                    Task { await unsetSession() }
                     return .unauthorized(context: error)
                 case .undocumentedError(let statusCode, let payload):
                     assert(
@@ -206,43 +117,15 @@ public final class Authentication: @unchecked Sendable, ObservableObject {
                     return .serverUnavailable(context: error)
                 }
             }
-
-        let response: BuddyAuthenticationRefreshResponse
+        let response: BuddyAuthenticationSessionResponse
         switch result {
-        case let .failure(failure):
-            return .failure(failure)
+        case let .failure(failure): return .failure(failure)
         case let .success(success): response = success
         }
 
-        let updatedAuthorizationToken = AuthorizationToken(
-            accessToken: response.accessToken,
-            refreshToken: authorizationToken.refreshToken,
-            expiryTimestamp: response.expiryTimestamp
-        )
-        setAuthorizationToken(updatedAuthorizationToken)
+        await setSession(.init(user: .init(email: response.user.email)))
 
-        return .success(updatedAuthorizationToken)
-    }
-
-    private func setAuthorizationToken(_ authorizationToken: AuthorizationToken) {
-        defer { self.authorizationToken = authorizationToken }
-
-        let authorizationTokenData: Data
-        do {
-            authorizationTokenData = try jsonEncoder.encode(authorizationToken)
-        } catch {
-            logger.error("Failed to encode authorization token; error='\(error)'")
-            assertionFailure()
-            return
-        }
-
-        let keychainSetResult = Keychain.set(authorizationTokenData, forKey: KeychainKeys.authorizationToken.key)
-        switch keychainSetResult {
-        case let .failure(failure):
-            logger.error("Failed to set authorization token in keychain; error='\(failure)'")
-            assertionFailure()
-        case .success: break
-        }
+        return .success(())
     }
 }
 
@@ -288,13 +171,5 @@ private enum LoadSessionErorrs: Error {
         case .unauthorized:
             return NSLocalizedString("Session expired, please log in again.", comment: "")
         }
-    }
-}
-
-private enum KeychainKeys: String {
-    case authorizationToken
-
-    var key: String {
-        "\(ModuleConfig.identifier).Keychain.\(rawValue)"
     }
 }

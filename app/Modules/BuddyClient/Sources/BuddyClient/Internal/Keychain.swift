@@ -1,8 +1,8 @@
 //
 //  Keychain.swift
-//  Authentication
+//  BuddyClient
 //
-//  Created by Kamaal M Farah on 2/16/25.
+//  Created by Kamaal M Farah on 3/1/25.
 //
 
 import Security
