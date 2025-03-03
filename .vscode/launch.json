@@ -10,7 +10,7 @@
       "request": "launch",
       "module": "uvicorn",
       "cwd": "${workspaceFolder}/server",
-      "env": {},
+      "envFile": "${workspaceFolder}/server/.env",
       "args": [
         "src.buddy.main:app",
         "--reload",

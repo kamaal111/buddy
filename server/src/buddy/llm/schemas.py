@@ -1,4 +1,11 @@
+from typing import Literal
+
 from pydantic import BaseModel, Field, field_validator
+
+from buddy.schemas import OKResponse
+
+AssistantMessageRole = Literal["assistant"]
+MessageRoles = Literal["user"] | AssistantMessageRole
 
 
 class LLMModel(BaseModel):
@@ -8,7 +15,17 @@ class LLMModel(BaseModel):
     description: str
 
 
-class ChatPayload(BaseModel):
+class LLMMessage(BaseModel):
+    role: MessageRoles
+    content: str
+
+
+class LLMChatResponseMessage(BaseModel):
+    role: AssistantMessageRole
+    content: str
+
+
+class CreateChatMessagePayload(BaseModel):
     llm_provider: str = Field(..., min_length=1)
     llm_key: str = Field(..., min_length=1)
     message: str = Field(..., min_length=1)
@@ -19,4 +36,4 @@ class ChatPayload(BaseModel):
         return v.strip()
 
 
-class ChatResponse(BaseModel): ...
+class CreateChatMessageResponse(OKResponse, LLMChatResponseMessage): ...

@@ -17,6 +17,7 @@ dependencies = [
     "sqlalchemy>=2.0.38",
     "sqlalchemy-utils>=0.41.2",
     "sqlmodel>=0.0.22",
+    "tiktoken>=0.9.0",
     "uvicorn[standard]>=0.34.0",
 ]
 

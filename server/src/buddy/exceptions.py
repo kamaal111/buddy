@@ -16,6 +16,15 @@ class BuddyError(HTTPException):
         super().__init__(status_code, list(map(_base_model_as_dict, details)), headers)
 
 
+class BuddyInternalError(BuddyError):
+    def __init__(self, headers=None):
+        super().__init__(
+            HTTPStatus.INTERNAL_SERVER_ERROR,
+            [BuddyErrorDetail(msg="Something went wrong", type="internal_error")],
+            headers,
+        )
+
+
 class BuddyValidationError(HTTPException):
     def __init__(
         self,

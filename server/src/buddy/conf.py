@@ -19,7 +19,8 @@ class __Settings(BaseSettings):
     jwt_expire_minutes: int = 30
     timezone: TimeZoneName = TimeZoneName("UTC")
     jwt_algorithm: str = "HS256"
-    refresh_tokens_per_user: int = 1
+    refresh_tokens_per_user: int = 2
+    openai_api_key: str | None = None
 
     @property
     def tzinfo(self):
