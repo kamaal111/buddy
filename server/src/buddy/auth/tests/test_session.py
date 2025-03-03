@@ -19,8 +19,14 @@ def test_session(client, default_user_credentials, default_user_login):
     assert session_json["available_models"] == [
         {
             "provider": "openai",
+            "key": "gpt-4o-mini",
+            "display_name": "GPT-4o mini",
+            "description": "GPT-4o Mini is great for lightweight, fast, and cost-effective AI tasks.",
+        },
+        {
+            "provider": "openai",
             "key": "gpt-4o",
             "display_name": "GPT-4o",
             "description": "Excels at fast, accurate, and multimodal AI interactions.",
-        }
+        },
     ]

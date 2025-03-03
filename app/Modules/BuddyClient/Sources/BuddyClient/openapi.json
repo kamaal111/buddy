@@ -227,10 +227,10 @@
                 }
             }
         },
-        "/app-api/v1/llm/chat": {
+        "/app-api/v1/llm/chats": {
             "post": {
-                "summary": "Chat",
-                "operationId": "chat_app_api_v1_llm_chat_post",
+                "summary": "Create Chat Message",
+                "operationId": "create_chat_message_app_api_v1_llm_chats_post",
                 "parameters": [
                     {
                         "name": "authorization",
@@ -247,24 +247,34 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/ChatPayload"
+                                "$ref": "#/components/schemas/CreateChatMessagePayload"
                             }
                         }
                     }
                 },
                 "responses": {
-                    "200": {
+                    "201": {
                         "description": "Return the chat response after sending a message.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ChatResponse"
+                                    "$ref": "#/components/schemas/CreateChatMessageResponse"
                                 }
                             }
                         }
                     },
                     "403": {
                         "description": "Forbidden LLM has been selected",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Something unexpected went wrong",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -345,7 +355,7 @@
                 ],
                 "title": "BuddyErrorDetail"
             },
-            "ChatPayload": {
+            "CreateChatMessagePayload": {
                 "properties": {
                     "llm_provider": {
                         "type": "string",
@@ -369,12 +379,32 @@
                     "llm_key",
                     "message"
                 ],
-                "title": "ChatPayload"
+                "title": "CreateChatMessagePayload"
             },
-            "ChatResponse": {
-                "properties": {},
+            "CreateChatMessageResponse": {
+                "properties": {
+                    "role": {
+                        "type": "string",
+                        "const": "assistant",
+                        "title": "Role"
+                    },
+                    "content": {
+                        "type": "string",
+                        "title": "Content"
+                    },
+                    "detail": {
+                        "type": "string",
+                        "const": "OK",
+                        "title": "Detail"
+                    }
+                },
                 "type": "object",
-                "title": "ChatResponse"
+                "required": [
+                    "role",
+                    "content",
+                    "detail"
+                ],
+                "title": "CreateChatMessageResponse"
             },
             "ErrorResponse": {
                 "properties": {
@@ -626,5 +656,4 @@
             }
         }
     }
-
 }

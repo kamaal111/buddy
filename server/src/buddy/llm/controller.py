@@ -11,13 +11,19 @@ from buddy.llm.providers import (
     get_users_model_by_key,
     get_users_provider_by_model,
 )
-from buddy.llm.schemas import ChatPayload, ChatResponse
+from buddy.llm.schemas import (
+    CreateChatMessagePayload,
+    CreateChatMessageResponse,
+    LLMMessage,
+)
 
 
 class LLMControllable(Protocol):
     user: User
 
-    def chat(self, payload: ChatPayload) -> ChatResponse: ...
+    def create_chat_message(
+        self, payload: CreateChatMessagePayload
+    ) -> CreateChatMessageResponse: ...
 
 
 class LLMController(LLMControllable):
@@ -26,7 +32,7 @@ class LLMController(LLMControllable):
     def __init__(self, user: User):
         self.user = user
 
-    def chat(self, payload) -> ChatResponse:
+    def create_chat_message(self, payload) -> CreateChatMessageResponse:
         selected_model = get_users_model_by_key(
             user=self.user, llm_key=payload.llm_key, provider=payload.llm_provider
         )
@@ -37,9 +43,14 @@ class LLMController(LLMControllable):
         if provider is None:
             raise LLMNotAllowed
 
-        print(provider)
+        response = provider.chat(
+            llm_model=selected_model,
+            messages=[LLMMessage(role="user", content=payload.message)],
+        )
 
-        return ChatResponse()
+        return CreateChatMessageResponse(
+            detail="OK", role=response.role, content=response.content
+        )
 
 
 async def get_llm_controller(
