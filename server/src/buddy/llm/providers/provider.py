@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Protocol
 
-from buddy.llm.schemas import LLMChatResponseMessage, LLMMessage
+from buddy.llm.schemas import ChatRoomMessage
 
 if TYPE_CHECKING:
     from buddy.auth.models import User
@@ -11,8 +11,8 @@ if TYPE_CHECKING:
 
 class LLMProviderable(Protocol):
     def chat(
-        self, llm_model: LLMModel, messages: list[LLMMessage]
-    ) -> LLMChatResponseMessage: ...
+        self, llm_model: LLMModel, messages: list[ChatRoomMessage]
+    ) -> ChatRoomMessage: ...
 
     def get_model_list_available_to_user(self, user: User) -> list[LLMModel]: ...
 

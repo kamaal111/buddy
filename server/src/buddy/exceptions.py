@@ -34,6 +34,15 @@ class BuddyBadRequestError(BuddyError):
         )
 
 
+class BuddyNotFoundError(BuddyError):
+    def __init__(self, headers=None):
+        super().__init__(
+            HTTPStatus.NOT_FOUND,
+            [BuddyErrorDetail(msg="Not found", type="not_found")],
+            headers,
+        )
+
+
 class BuddyValidationError(HTTPException):
     def __init__(
         self,

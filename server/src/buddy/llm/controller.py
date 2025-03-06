@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import uuid
 from typing import Annotated, Protocol
 
 from fastapi import Depends
@@ -8,6 +9,7 @@ from sqlmodel import Session
 from buddy.auth.middleware import get_request_user
 from buddy.auth.models import User
 from buddy.database import Databaseable, get_database
+from buddy.exceptions import BuddyNotFoundError
 from buddy.llm.exceptions import LLMNotAllowed
 from buddy.llm.models import ChatRoom
 from buddy.llm.providers import (
@@ -21,7 +23,7 @@ from buddy.llm.schemas import (
     CreateChatMessagePayload,
     CreateChatMessageResponse,
     CreateChatRoomPayload,
-    LLMMessage,
+    ListChatMessagesResponse,
 )
 from buddy.utils.datetime_utils import datetime_now_with_timezone
 
@@ -31,6 +33,8 @@ class LLMControllable(Protocol):
     database: Databaseable
 
     def list_chat_rooms(self) -> ChatRoomListResponse: ...
+
+    def list_chat_messages(self, room_id: uuid.UUID) -> ListChatMessagesResponse: ...
 
     def create_chat_message(
         self, payload: CreateChatMessagePayload
@@ -45,10 +49,11 @@ class LLMController(LLMControllable):
         self.database = database
         self.user = user
 
-    def list_chat_rooms(self):
+    def list_chat_rooms(self) -> ChatRoomListResponse:
+        owner_id = self.user.id
+        assert owner_id is not None
+
         with Session(self.database.engine) as session:
-            owner_id = self.user.id
-            assert owner_id is not None
 
             def chat_room_to_response(room: ChatRoom) -> ChatRoomListItem:
                 return ChatRoomListItem(
@@ -68,6 +73,17 @@ class LLMController(LLMControllable):
 
             return ChatRoomListResponse(detail="OK", data=rooms)
 
+    def list_chat_messages(self, room_id) -> ListChatMessagesResponse:
+        owner_id = self.user.id
+        assert owner_id is not None
+
+        with Session(self.database.engine) as session:
+            room = ChatRoom.get_by_id(id=room_id, owner_id=owner_id, session=session)
+            if room is None:
+                raise BuddyNotFoundError
+
+            return ListChatMessagesResponse(detail="OK", data=room.validated_messages())
+
     def create_chat_message(self, payload) -> CreateChatMessageResponse:
         request_time = datetime_now_with_timezone()
         selected_model = get_users_model_by_key(
@@ -83,7 +99,7 @@ class LLMController(LLMControllable):
         asking_user_id = self.user.id
         assert asking_user_id is not None
 
-        messages: list[LLMMessage] = []
+        messages: list[ChatRoomMessage] = []
         existing_room: ChatRoom | None = None
         with Session(self.database.engine) as session:
             if room_id := payload.room_id:
@@ -95,7 +111,13 @@ class LLMController(LLMControllable):
 
                 messages = existing_room.validated_messages()
 
-        question = LLMMessage(role="user", content=payload.message)
+        question = ChatRoomMessage(
+            role="user",
+            content=payload.message,
+            llm_provider=payload.llm_provider,
+            llm_key=payload.llm_key,
+            date=request_time,
+        )
         messages.append(question)
         response = provider.chat(
             llm_model=selected_model,
@@ -107,27 +129,15 @@ class LLMController(LLMControllable):
                 room = existing_room.add_messages(
                     messages=[
                         question,
-                        LLMMessage(role=response.role, content=response.content),
+                        response,
                     ],
                     session=session,
                 )
             else:
                 room = ChatRoom.create(
                     payload=CreateChatRoomPayload(
-                        question=ChatRoomMessage(
-                            role=question.role,
-                            content=question.content,
-                            llm_provider=payload.llm_provider,
-                            llm_key=payload.llm_key,
-                            date=request_time,
-                        ),
-                        answer=ChatRoomMessage(
-                            role=response.role,
-                            content=response.content,
-                            llm_provider=payload.llm_provider,
-                            llm_key=payload.llm_key,
-                            date=response_time,
-                        ),
+                        question=question,
+                        answer=response,
                         asking_user_id=asking_user_id,
                     ),
                     session=session,
@@ -139,6 +149,8 @@ class LLMController(LLMControllable):
                 content=response.content,
                 date=response_time,
                 room_id=room.id,
+                llm_key=payload.llm_key,
+                llm_provider=payload.llm_provider,
             )
 
 

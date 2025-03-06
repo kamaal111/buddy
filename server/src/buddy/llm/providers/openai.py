@@ -7,8 +7,9 @@ from openai import OpenAI
 from buddy.conf import settings
 from buddy.exceptions import BuddyInternalError
 from buddy.llm.providers.provider import LLMProviderable
-from buddy.llm.schemas import LLMChatResponseMessage, LLMModel
+from buddy.llm.schemas import ChatRoomMessage, LLMModel
 from buddy.money.tiers import UserTiers
+from buddy.utils.datetime_utils import datetime_now_with_timezone
 from buddy.utils.logger_utils import get_logger
 
 logger = get_logger()
@@ -57,7 +58,7 @@ class OpenAIProvider(LLMProviderable):
     def __init__(self):
         self.client = OpenAI(api_key=settings.openai_api_key)
 
-    def chat(self, llm_model, messages) -> LLMChatResponseMessage:
+    def chat(self, llm_model, messages) -> ChatRoomMessage:
         assert llm_model.provider == _NAME
 
         encoding = tiktoken.encoding_for_model(llm_model.key)
@@ -66,7 +67,9 @@ class OpenAIProvider(LLMProviderable):
             f"OpenAI completion on model '{llm_model.key}' made with '{pre_calculated_token_count}' tokens pre calculated"
         )
         response = self.client.chat.completions.create(
-            messages=list(map(lambda message: message.model_dump(), messages)),
+            messages=list(
+                map(lambda message: message.as_llm_message.model_dump(), messages)
+            ),
             model=llm_model.key,
         )
         if response.usage is None:
@@ -84,8 +87,14 @@ class OpenAIProvider(LLMProviderable):
             )
             raise BuddyInternalError
 
-        return LLMChatResponseMessage(
-            role=choice.message.role, content=choice.message.content
+        response_time = datetime_now_with_timezone()
+
+        return ChatRoomMessage(
+            role=choice.message.role,
+            content=choice.message.content,
+            llm_key=llm_model.key,
+            llm_provider=llm_model.provider,
+            date=response_time,
         )
 
     def get_model_list_available_to_user(self, user) -> list[LLMModel]:

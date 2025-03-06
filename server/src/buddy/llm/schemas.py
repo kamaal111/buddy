@@ -22,11 +22,6 @@ class LLMMessage(BaseModel):
     content: str
 
 
-class LLMChatResponseMessage(BaseModel):
-    role: AssistantMessageRole
-    content: str
-
-
 class CreateChatMessagePayload(BaseModel):
     room_id: uuid.UUID | None = None
     llm_provider: str = Field(..., min_length=1)
@@ -39,14 +34,18 @@ class CreateChatMessagePayload(BaseModel):
         return v.strip()
 
 
-class CreateChatMessageResponse(CreatedResponse, LLMChatResponseMessage):
-    room_id: uuid.UUID
-    date: datetime
-
-
 class ChatRoomMessage(LLMMessage):
     llm_provider: str
     llm_key: str
+    date: datetime
+
+    @property
+    def as_llm_message(self) -> LLMMessage:
+        return LLMMessage(role=self.role, content=self.content)
+
+
+class CreateChatMessageResponse(CreatedResponse, ChatRoomMessage):
+    room_id: uuid.UUID
     date: datetime
 
 
@@ -66,3 +65,7 @@ class ChatRoomListItem(BaseModel):
 
 class ChatRoomListResponse(OKResponse):
     data: list[ChatRoomListItem]
+
+
+class ListChatMessagesResponse(OKResponse):
+    data: list[ChatRoomMessage]

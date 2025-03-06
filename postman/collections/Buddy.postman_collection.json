@@ -226,7 +226,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"llm_provider\": \"openai\",\n    \"llm_key\": \"gpt-4o-mini\",\n    \"message\": \"How are you?\"\n}",
+							"raw": "{\n    \"llm_provider\": \"openai\",\n    \"llm_key\": \"gpt-4o-mini\",\n    \"message\": \"Give me more compliments\",\n    \"room_id\": \"{{room_id}}\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -241,6 +241,103 @@
 							"path": [
 								"llm",
 								"chats"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List chat rooms",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const {refreshTokenIfExpired} = pm.require('refresh-token-if-expired');",
+									"",
+									"await refreshTokenIfExpired()"
+								],
+								"type": "text/javascript",
+								"packages": {
+									"refresh-token-if-expired": {
+										"id": "01955830-a1f8-7cfe-a05d-8a12bdf8d255"
+									}
+								}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{app_base_url}}/llm/chats",
+							"host": [
+								"{{app_base_url}}"
+							],
+							"path": [
+								"llm",
+								"chats"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List chat messages",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const {refreshTokenIfExpired} = pm.require('refresh-token-if-expired');",
+									"",
+									"await refreshTokenIfExpired()"
+								],
+								"type": "text/javascript",
+								"packages": {
+									"refresh-token-if-expired": {
+										"id": "01955830-a1f8-7cfe-a05d-8a12bdf8d255"
+									}
+								}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{app_base_url}}/llm/chats/{{room_id}}",
+							"host": [
+								"{{app_base_url}}"
+							],
+							"path": [
+								"llm",
+								"chats",
+								"{{room_id}}"
 							]
 						}
 					},

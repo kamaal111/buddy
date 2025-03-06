@@ -1,3 +1,4 @@
+import uuid
 from http import HTTPStatus
 from typing import Annotated
 
@@ -8,6 +9,7 @@ from buddy.llm.schemas import (
     ChatRoomListResponse,
     CreateChatMessagePayload,
     CreateChatMessageResponse,
+    ListChatMessagesResponse,
 )
 from buddy.schemas import ErrorResponse
 
@@ -32,6 +34,31 @@ def list_chat_rooms(
     controller: Annotated[LLMControllable, Depends(get_llm_controller)],
 ) -> ChatRoomListResponse:
     return controller.list_chat_rooms()
+
+
+@llm_router.get(
+    "/chats/{room_id}",
+    status_code=HTTPStatus.OK,
+    responses={
+        HTTPStatus.OK: {
+            "model": ListChatMessagesResponse,
+            "description": "Returns the requesting users chat rooms",
+        },
+        HTTPStatus.UNAUTHORIZED: {
+            "model": ErrorResponse,
+            "description": "Resources requested while unauthorized",
+        },
+        HTTPStatus.NOT_FOUND: {
+            "model": ErrorResponse,
+            "description": "Chat room not found",
+        },
+    },
+)
+def list_chat_messages(
+    room_id: uuid.UUID,
+    controller: Annotated[LLMControllable, Depends(get_llm_controller)],
+) -> ListChatMessagesResponse:
+    return controller.list_chat_messages(room_id)
 
 
 @llm_router.post(

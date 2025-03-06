@@ -9,7 +9,7 @@ from sqlmodel import Field, SQLModel, Session, col, select
 
 from buddy.auth.models import User
 from buddy.exceptions import BuddyBadRequestError
-from buddy.llm.schemas import CreateChatRoomPayload, LLMMessage
+from buddy.llm.schemas import ChatRoomMessage, CreateChatRoomPayload
 from buddy.utils.datetime_utils import datetime_now_with_timezone
 
 
@@ -35,10 +35,16 @@ class ChatRoom(SQLModel, table=True):
     )
     owner_id: int = Field(default=None, foreign_key=f"{User.__tablename__}.id")
 
-    def validated_messages(self) -> list[LLMMessage]:
-        return list(map(lambda message: LLMMessage(**message), self.messages))
+    def validated_messages(self) -> list[ChatRoomMessage]:
+        return sorted(
+            map(lambda message: ChatRoomMessage(**message), self.messages),
+            key=lambda message: message.date,
+            reverse=True,
+        )
 
-    def add_messages(self, messages: list[LLMMessage], session: Session) -> ChatRoom:
+    def add_messages(
+        self, messages: list[ChatRoomMessage], session: Session
+    ) -> ChatRoom:
         all_messages = self.validated_messages()
         all_messages.extend(messages)
         self.messages = list(
@@ -54,7 +60,7 @@ class ChatRoom(SQLModel, table=True):
         return room
 
     @staticmethod
-    def list_for_owner(owner_id: str, session: Session) -> Sequence[ChatRoom]:
+    def list_for_owner(owner_id: int, session: Session) -> Sequence[ChatRoom]:
         query = (
             select(ChatRoom)
             .where(ChatRoom.owner_id == owner_id)

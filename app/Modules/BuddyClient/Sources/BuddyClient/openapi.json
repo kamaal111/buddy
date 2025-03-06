@@ -352,6 +352,75 @@
                     }
                 }
             }
+        },
+        "/app-api/v1/llm/chats/{room_id}": {
+            "get": {
+                "summary": "List Chat Messages",
+                "operationId": "list_chat_messages_app_api_v1_llm_chats__room_id__get",
+                "parameters": [
+                    {
+                        "name": "room_id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "title": "Room Id"
+                        }
+                    },
+                    {
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Authorization"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the requesting users chat rooms",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ListChatMessagesResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Resources requested while unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Chat room not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -470,6 +539,49 @@
                 ],
                 "title": "ChatRoomListResponse"
             },
+            "ChatRoomMessage": {
+                "properties": {
+                    "role": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "const": "user"
+                            },
+                            {
+                                "type": "string",
+                                "const": "assistant"
+                            }
+                        ],
+                        "title": "Role"
+                    },
+                    "content": {
+                        "type": "string",
+                        "title": "Content"
+                    },
+                    "llm_provider": {
+                        "type": "string",
+                        "title": "Llm Provider"
+                    },
+                    "llm_key": {
+                        "type": "string",
+                        "title": "Llm Key"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Date"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "role",
+                    "content",
+                    "llm_provider",
+                    "llm_key",
+                    "date"
+                ],
+                "title": "ChatRoomMessage"
+            },
             "CreateChatMessagePayload": {
                 "properties": {
                     "room_id": {
@@ -511,13 +623,34 @@
             "CreateChatMessageResponse": {
                 "properties": {
                     "role": {
-                        "type": "string",
-                        "const": "assistant",
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "const": "user"
+                            },
+                            {
+                                "type": "string",
+                                "const": "assistant"
+                            }
+                        ],
                         "title": "Role"
                     },
                     "content": {
                         "type": "string",
                         "title": "Content"
+                    },
+                    "llm_provider": {
+                        "type": "string",
+                        "title": "Llm Provider"
+                    },
+                    "llm_key": {
+                        "type": "string",
+                        "title": "Llm Key"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Date"
                     },
                     "detail": {
                         "type": "string",
@@ -528,20 +661,17 @@
                         "type": "string",
                         "format": "uuid",
                         "title": "Room Id"
-                    },
-                    "date": {
-                        "type": "string",
-                        "format": "date-time",
-                        "title": "Date"
                     }
                 },
                 "type": "object",
                 "required": [
                     "role",
                     "content",
+                    "llm_provider",
+                    "llm_key",
+                    "date",
                     "detail",
-                    "room_id",
-                    "date"
+                    "room_id"
                 ],
                 "title": "CreateChatMessageResponse"
             },
@@ -601,6 +731,28 @@
                     "description"
                 ],
                 "title": "LLMModel"
+            },
+            "ListChatMessagesResponse": {
+                "properties": {
+                    "detail": {
+                        "type": "string",
+                        "const": "OK",
+                        "title": "Detail"
+                    },
+                    "data": {
+                        "items": {
+                            "$ref": "#/components/schemas/ChatRoomMessage"
+                        },
+                        "type": "array",
+                        "title": "Data"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "detail",
+                    "data"
+                ],
+                "title": "ListChatMessagesResponse"
             },
             "LoginResponse": {
                 "properties": {
