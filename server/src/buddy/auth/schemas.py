@@ -5,7 +5,7 @@ from typing import Literal
 from pydantic import BaseModel, EmailStr, Field
 
 from buddy.llm.schemas import LLMModel
-from buddy.schemas import OKResponse
+from buddy.schemas import CreatedResponse, OKResponse
 
 
 class UserPayload(BaseModel):
@@ -13,8 +13,7 @@ class UserPayload(BaseModel):
     password: str = Field(min_length=8)
 
 
-class RegisterResponse(BaseModel):
-    detail: Literal["Created"]
+class RegisterResponse(CreatedResponse): ...
 
 
 class AccessToken(BaseModel):

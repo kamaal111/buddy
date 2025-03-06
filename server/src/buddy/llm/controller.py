@@ -15,6 +15,8 @@ from buddy.llm.providers import (
     get_users_provider_by_model,
 )
 from buddy.llm.schemas import (
+    ChatRoomListItem,
+    ChatRoomListResponse,
     ChatRoomMessage,
     CreateChatMessagePayload,
     CreateChatMessageResponse,
@@ -28,7 +30,9 @@ class LLMControllable(Protocol):
     user: User
     database: Databaseable
 
-    def create_chat_message(
+    def list_chat_rooms(self) -> ChatRoomListResponse: ...
+
+    def create_chat_room(
         self, payload: CreateChatMessagePayload
     ) -> CreateChatMessageResponse: ...
 
@@ -41,7 +45,30 @@ class LLMController(LLMControllable):
         self.database = database
         self.user = user
 
-    def create_chat_message(self, payload) -> CreateChatMessageResponse:
+    def list_chat_rooms(self):
+        with Session(self.database.engine) as session:
+            owner_id = self.user.id
+            assert owner_id is not None
+
+            def chat_room_to_response(room: ChatRoom) -> ChatRoomListItem:
+                return ChatRoomListItem(
+                    room_id=room.id,
+                    title=room.title,
+                    messages_count=len(room.messages),
+                    created_at=room.created_at,
+                    updated_at=room.updated_at,
+                )
+
+            rooms = list(
+                map(
+                    chat_room_to_response,
+                    ChatRoom.list_for_owner(owner_id=owner_id, session=session),
+                )
+            )
+
+            return ChatRoomListResponse(detail="OK", data=rooms)
+
+    def create_chat_room(self, payload) -> CreateChatMessageResponse:
         request_time = datetime_now_with_timezone()
         selected_model = get_users_model_by_key(
             user=self.user, llm_key=payload.llm_key, provider=payload.llm_provider
@@ -85,7 +112,7 @@ class LLMController(LLMControllable):
             )
 
             return CreateChatMessageResponse(
-                detail="OK",
+                detail="Created",
                 role=response.role,
                 content=response.content,
                 date=response_time,

@@ -4,7 +4,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
-from buddy.schemas import OKResponse
+from buddy.schemas import CreatedResponse, OKResponse
 
 AssistantMessageRole = Literal["assistant"]
 MessageRoles = Literal["user"] | AssistantMessageRole
@@ -38,7 +38,7 @@ class CreateChatMessagePayload(BaseModel):
         return v.strip()
 
 
-class CreateChatMessageResponse(OKResponse, LLMChatResponseMessage):
+class CreateChatMessageResponse(CreatedResponse, LLMChatResponseMessage):
     room_id: uuid.UUID
     date: datetime
 
@@ -53,3 +53,15 @@ class CreateChatRoomPayload(BaseModel):
     question: ChatRoomMessage
     answer: ChatRoomMessage
     asking_user_id: int
+
+
+class ChatRoomListItem(BaseModel):
+    room_id: uuid.UUID
+    title: str
+    messages_count: int
+    created_at: datetime
+    updated_at: datetime
+
+
+class ChatRoomListResponse(OKResponse):
+    data: list[ChatRoomListItem]

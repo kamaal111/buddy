@@ -14,3 +14,7 @@ class ErrorResponse(BaseModel):
 
 class OKResponse(BaseModel):
     detail: Literal["OK"]
+
+
+class CreatedResponse(BaseModel):
+    detail: Literal["Created"]

@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
+from typing import Sequence
 
 from sqlalchemy import ARRAY, JSON, Column, DateTime
-from sqlmodel import Field, SQLModel, Session, select
+from sqlmodel import Field, SQLModel, Session, col, select
 
 from buddy.auth.models import User
 from buddy.exceptions import BuddyBadRequestError
@@ -34,13 +35,18 @@ class ChatRoom(SQLModel, table=True):
     )
     owner_id: int = Field(default=None, foreign_key=f"{User.__tablename__}.id")
 
-    def get_owner(self, session: Session) -> User | None:
-        query = select(User).where(User.id == self.owner_id).limit(1)
-
-        return session.exec(query).first()
-
     def validated_messages(self) -> list[LLMMessage]:
         return list(map(lambda message: LLMMessage(**message), self.messages))
+
+    @staticmethod
+    def list_for_owner(owner_id: str, session: Session) -> Sequence[ChatRoom]:
+        query = (
+            select(ChatRoom)
+            .where(ChatRoom.owner_id == owner_id)
+            .order_by(col(ChatRoom.updated_at).asc())
+        )
+
+        return session.exec(query).all()
 
     @staticmethod
     def create(
