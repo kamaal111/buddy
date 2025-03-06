@@ -92,7 +92,7 @@ def login(
 def session(
     user: Annotated[User, Depends(get_request_user)],
     controller: Annotated[AuthControllable, Depends(get_auth_controller)],
-):
+) -> SessionResponse:
     return controller.session(user=user)
 
 
@@ -118,7 +118,7 @@ def refresh(
     payload: RefreshPayload,
     authorization: Annotated[str, Header()],
     controller: Annotated[AuthControllable, Depends(get_auth_controller)],
-):
+) -> RefreshResponse:
     return controller.refresh(
         refresh_token=payload.refresh_token,
         authorization=authorization,

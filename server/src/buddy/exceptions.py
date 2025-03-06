@@ -25,6 +25,15 @@ class BuddyInternalError(BuddyError):
         )
 
 
+class BuddyBadRequestError(BuddyError):
+    def __init__(self, headers=None):
+        super().__init__(
+            HTTPStatus.BAD_REQUEST,
+            [BuddyErrorDetail(msg="Invalid payload", type="invalid_payload")],
+            headers,
+        )
+
+
 class BuddyValidationError(HTTPException):
     def __init__(
         self,

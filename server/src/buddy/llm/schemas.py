@@ -1,3 +1,5 @@
+import uuid
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
@@ -36,4 +38,18 @@ class CreateChatMessagePayload(BaseModel):
         return v.strip()
 
 
-class CreateChatMessageResponse(OKResponse, LLMChatResponseMessage): ...
+class CreateChatMessageResponse(OKResponse, LLMChatResponseMessage):
+    room_id: uuid.UUID
+    date: datetime
+
+
+class ChatRoomMessage(LLMMessage):
+    llm_provider: str
+    llm_key: str
+    date: datetime
+
+
+class CreateChatRoomPayload(BaseModel):
+    question: ChatRoomMessage
+    answer: ChatRoomMessage
+    asking_user_id: int
