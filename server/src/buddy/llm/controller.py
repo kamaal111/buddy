@@ -32,7 +32,7 @@ class LLMControllable(Protocol):
 
     def list_chat_rooms(self) -> ChatRoomListResponse: ...
 
-    def create_chat_room(
+    def create_chat_message(
         self, payload: CreateChatMessagePayload
     ) -> CreateChatMessageResponse: ...
 
@@ -68,7 +68,7 @@ class LLMController(LLMControllable):
 
             return ChatRoomListResponse(detail="OK", data=rooms)
 
-    def create_chat_room(self, payload) -> CreateChatMessageResponse:
+    def create_chat_message(self, payload) -> CreateChatMessageResponse:
         request_time = datetime_now_with_timezone()
         selected_model = get_users_model_by_key(
             user=self.user, llm_key=payload.llm_key, provider=payload.llm_provider
@@ -80,36 +80,58 @@ class LLMController(LLMControllable):
         if provider is None:
             raise LLMNotAllowed
 
+        asking_user_id = self.user.id
+        assert asking_user_id is not None
+
+        messages: list[LLMMessage] = []
+        existing_room: ChatRoom | None = None
+        with Session(self.database.engine) as session:
+            if room_id := payload.room_id:
+                existing_room = ChatRoom.get_by_id(
+                    id=room_id, owner_id=asking_user_id, session=session
+                )
+                if existing_room is None:
+                    raise LLMNotAllowed
+
+                messages = existing_room.validated_messages()
+
         question = LLMMessage(role="user", content=payload.message)
+        messages.append(question)
         response = provider.chat(
             llm_model=selected_model,
-            messages=[question],
+            messages=messages,
         )
         response_time = datetime_now_with_timezone()
         with Session(self.database.engine) as session:
-            asking_user_id = self.user.id
-            assert asking_user_id is not None
-
-            room = ChatRoom.create(
-                payload=CreateChatRoomPayload(
-                    question=ChatRoomMessage(
-                        role=question.role,
-                        content=question.content,
-                        llm_provider=payload.llm_provider,
-                        llm_key=payload.llm_key,
-                        date=request_time,
+            if existing_room:
+                room = existing_room.add_messages(
+                    messages=[
+                        question,
+                        LLMMessage(role=response.role, content=response.content),
+                    ],
+                    session=session,
+                )
+            else:
+                room = ChatRoom.create(
+                    payload=CreateChatRoomPayload(
+                        question=ChatRoomMessage(
+                            role=question.role,
+                            content=question.content,
+                            llm_provider=payload.llm_provider,
+                            llm_key=payload.llm_key,
+                            date=request_time,
+                        ),
+                        answer=ChatRoomMessage(
+                            role=response.role,
+                            content=response.content,
+                            llm_provider=payload.llm_provider,
+                            llm_key=payload.llm_key,
+                            date=response_time,
+                        ),
+                        asking_user_id=asking_user_id,
                     ),
-                    answer=ChatRoomMessage(
-                        role=response.role,
-                        content=response.content,
-                        llm_provider=payload.llm_provider,
-                        llm_key=payload.llm_key,
-                        date=response_time,
-                    ),
-                    asking_user_id=asking_user_id,
-                ),
-                session=session,
-            )
+                    session=session,
+                )
 
             return CreateChatMessageResponse(
                 detail="Created",

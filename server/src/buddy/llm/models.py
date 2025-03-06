@@ -38,6 +38,21 @@ class ChatRoom(SQLModel, table=True):
     def validated_messages(self) -> list[LLMMessage]:
         return list(map(lambda message: LLMMessage(**message), self.messages))
 
+    def add_messages(self, messages: list[LLMMessage], session: Session) -> ChatRoom:
+        all_messages = self.validated_messages()
+        all_messages.extend(messages)
+        self.messages = list(
+            map(lambda message: message.model_dump(mode="json"), all_messages)
+        )
+
+        session.add(self)
+        session.commit()
+
+        room = self
+        session.refresh(room)
+
+        return room
+
     @staticmethod
     def list_for_owner(owner_id: str, session: Session) -> Sequence[ChatRoom]:
         query = (
@@ -47,6 +62,17 @@ class ChatRoom(SQLModel, table=True):
         )
 
         return session.exec(query).all()
+
+    @staticmethod
+    def get_by_id(id: uuid.UUID, owner_id: int, session: Session) -> ChatRoom | None:
+        query = (
+            select(ChatRoom)
+            .where(ChatRoom.id == id)
+            .where(ChatRoom.owner_id == owner_id)
+            .limit(1)
+        )
+
+        return session.exec(query).first()
 
     @staticmethod
     def create(

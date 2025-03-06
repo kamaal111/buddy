@@ -228,6 +228,53 @@
             }
         },
         "/app-api/v1/llm/chats": {
+            "get": {
+                "summary": "List Chat Rooms",
+                "operationId": "list_chat_rooms_app_api_v1_llm_chats_get",
+                "parameters": [
+                    {
+                        "name": "authorization",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "title": "Authorization"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the requesting users chat rooms",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ChatRoomListResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Resources requested while unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation Error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HTTPValidationError"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
                 "summary": "Create Chat Message",
                 "operationId": "create_chat_message_app_api_v1_llm_chats_post",
@@ -259,6 +306,16 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/CreateChatMessageResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Resources requested while unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
                                 }
                             }
                         }
@@ -355,8 +412,78 @@
                 ],
                 "title": "BuddyErrorDetail"
             },
+            "ChatRoomListItem": {
+                "properties": {
+                    "room_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Room Id"
+                    },
+                    "title": {
+                        "type": "string",
+                        "title": "Title"
+                    },
+                    "messages_count": {
+                        "type": "integer",
+                        "title": "Messages Count"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Created At"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Updated At"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "room_id",
+                    "title",
+                    "messages_count",
+                    "created_at",
+                    "updated_at"
+                ],
+                "title": "ChatRoomListItem"
+            },
+            "ChatRoomListResponse": {
+                "properties": {
+                    "detail": {
+                        "type": "string",
+                        "const": "OK",
+                        "title": "Detail"
+                    },
+                    "data": {
+                        "items": {
+                            "$ref": "#/components/schemas/ChatRoomListItem"
+                        },
+                        "type": "array",
+                        "title": "Data"
+                    }
+                },
+                "type": "object",
+                "required": [
+                    "detail",
+                    "data"
+                ],
+                "title": "ChatRoomListResponse"
+            },
             "CreateChatMessagePayload": {
                 "properties": {
+                    "room_id": {
+                        "anyOf": [
+                            {
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            {
+                                "type": "null"
+                            }
+                        ],
+                        "title": "Room Id"
+                    },
                     "llm_provider": {
                         "type": "string",
                         "minLength": 1,
@@ -394,15 +521,27 @@
                     },
                     "detail": {
                         "type": "string",
-                        "const": "OK",
+                        "const": "Created",
                         "title": "Detail"
+                    },
+                    "room_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "title": "Room Id"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date-time",
+                        "title": "Date"
                     }
                 },
                 "type": "object",
                 "required": [
                     "role",
                     "content",
-                    "detail"
+                    "detail",
+                    "room_id",
+                    "date"
                 ],
                 "title": "CreateChatMessageResponse"
             },

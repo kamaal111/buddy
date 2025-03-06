@@ -28,6 +28,7 @@ class LLMChatResponseMessage(BaseModel):
 
 
 class CreateChatMessagePayload(BaseModel):
+    room_id: uuid.UUID | None = None
     llm_provider: str = Field(..., min_length=1)
     llm_key: str = Field(..., min_length=1)
     message: str = Field(..., min_length=1)

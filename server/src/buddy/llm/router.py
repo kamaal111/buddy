@@ -56,8 +56,8 @@ def list_chat_rooms(
         },
     },
 )
-def create_chat_room(
+def create_chat_message(
     payload: CreateChatMessagePayload,
     controller: Annotated[LLMControllable, Depends(get_llm_controller)],
 ) -> CreateChatMessageResponse:
-    return controller.create_chat_room(payload)
+    return controller.create_chat_message(payload)
