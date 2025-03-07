@@ -33,8 +33,8 @@ struct Sidebar: View {
         .navigationSplitViewColumnWidth(min: minWidth, ideal: idealWidth)
     }
 
-    private static let DEFAULT_MIN_WIDTH: CGFloat = 180
-    private static let DEFAULT_IDEAL_WIDTH: CGFloat = 200
+    private static let DEFAULT_MIN_WIDTH: CGFloat = 140
+    private static let DEFAULT_IDEAL_WIDTH: CGFloat = 160
 }
 
 #Preview {

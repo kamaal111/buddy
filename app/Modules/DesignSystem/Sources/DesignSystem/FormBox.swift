@@ -33,29 +33,21 @@ public struct FormBox<Content: View>: View {
     }
 
     public var body: some View {
-        JustStack {
-            #if os(macOS)
-            VStack {
-                GroupBox {
-                    VStack {
-                        Text(title)
-                            .font(.title2)
-                            .takeWidthEagerly(alignment: .leading)
-                        content()
-                    }
-                    .padding(.vertical, .large)
-                    .padding(.horizontal, .medium)
+        VStack {
+            GroupBox {
+                VStack {
+                    Text(title)
+                        .font(.title2)
+                        .takeWidthEagerly(alignment: .leading)
+                    content()
                 }
-                .frame(width: minSize.width / 1.1)
+                .padding(.vertical, .large)
+                .padding(.horizontal, .medium)
             }
-            .padding(.horizontal, .medium)
-            .frame(minWidth: minSize.width + AppSizes.medium, minHeight: minSize.height + AppSizes.medium)
-            #else
-            Form {
-                content()
-            }
-            #endif
+            .frame(width: minSize.width / 1.1)
         }
+        .padding(.horizontal, .medium)
+        .frame(minWidth: minSize.width + AppSizes.medium, minHeight: minSize.height + AppSizes.medium)
         .navigationTitle(Text(title))
     }
 }

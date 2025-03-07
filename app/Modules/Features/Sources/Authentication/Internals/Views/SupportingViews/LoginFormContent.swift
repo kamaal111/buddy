@@ -54,9 +54,7 @@ struct LoginFormContent: View {
                 .buttonStyle(.plain)
                 .disabled(!formIsValid)
             }
-            #if os(macOS)
             .padding(.vertical, .small)
-            #endif
             Button(action: onSignUpPress) {
                 HStack {
                     Text("Don't have an account yet?")
@@ -65,9 +63,7 @@ struct LoginFormContent: View {
                         .bold()
                         .underline()
                 }
-                #if os(macOS)
                 .padding(.bottom, .small)
-                #endif
             }
             .buttonStyle(.plain)
         }

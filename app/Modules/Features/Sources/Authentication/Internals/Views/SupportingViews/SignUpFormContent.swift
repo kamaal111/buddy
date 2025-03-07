@@ -71,9 +71,7 @@ struct SignUpFormContent: View {
                 .buttonStyle(.plain)
                 .disabled(!formIsValid)
             }
-            #if os(macOS)
             .padding(.vertical, .small)
-            #endif
             Button(action: onLoginPress) {
                 HStack {
                     Text("Already have an account?")
@@ -82,9 +80,7 @@ struct SignUpFormContent: View {
                         .bold()
                         .underline()
                 }
-                #if os(macOS)
                 .padding(.bottom, .small)
-                #endif
             }
             .buttonStyle(.plain)
         }

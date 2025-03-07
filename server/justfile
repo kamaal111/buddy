@@ -36,6 +36,8 @@ install-modules:
 
     . ~/.zshrc
 
+    echo "Installing modules"
+    echo "UV version: $(uv --version)"
     uv sync
 
 # Type check
