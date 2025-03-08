@@ -5,9 +5,12 @@
 //  Created by Kamaal M Farah on 2/16/25.
 //
 
+import Chat
 import SwiftUI
 
 struct Sidebar: View {
+    @EnvironmentObject private var chat: Chat
+
     let minWidth: CGFloat
     let idealWidth: CGFloat
 
@@ -28,6 +31,14 @@ struct Sidebar: View {
                         .foregroundColor(.accentColor)
                 }
                 .buttonStyle(.plain)
+                Divider()
+                ForEach(chat.rooms) { room in
+                    Button(action: { }) {
+                        Text(room.title)
+                            .foregroundColor(.accentColor)
+                    }
+                    .buttonStyle(.plain)
+                }
             }
         }
         .navigationSplitViewColumnWidth(min: minWidth, ideal: idealWidth)
@@ -39,4 +50,5 @@ struct Sidebar: View {
 
 #Preview {
     Sidebar()
+        .preview()
 }

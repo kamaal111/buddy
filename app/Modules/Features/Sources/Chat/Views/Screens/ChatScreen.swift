@@ -32,7 +32,7 @@ public struct ChatScreen: View {
             }
         }
         .padding(.all, .medium)
-        .frame(minWidth: AppConfig.screenMinSize.width, minHeight: AppConfig.screenMinSize.height)
+        .frame(minWidth: ModuleConfig.screenMinSize.width, minHeight: ModuleConfig.screenMinSize.height)
         .onAppear {
             guard !availableModels.isEmpty else { return }
 

@@ -12,6 +12,8 @@ from buddy.exceptions import BuddyBadRequestError
 from buddy.llm.schemas import ChatRoomMessage, CreateChatRoomPayload
 from buddy.utils.datetime_utils import datetime_now_with_timezone
 
+CHAT_ROOM_MAX_TITLE_LENGTH = 255
+
 
 class ChatRoom(SQLModel, table=True):
     __tablename__: str = "chat_room"  # type: ignore
@@ -99,7 +101,7 @@ class ChatRoom(SQLModel, table=True):
         assert asking_user.id is not None
 
         room = ChatRoom(
-            title=payload.question.content.strip()[:16],
+            title=payload.question.content.strip()[:CHAT_ROOM_MAX_TITLE_LENGTH],
             messages=messages,
             owner_id=asking_user.id,
         )

@@ -15,10 +15,10 @@ extension View {
 }
 
 private struct ChatEnvironment: ViewModifier {
-    @State private var chat = Chat()
+    @StateObject private var chat = Chat()
 
     func body(content: Content) -> some View {
         content
-            .environment(chat)
+            .environmentObject(chat)
     }
 }

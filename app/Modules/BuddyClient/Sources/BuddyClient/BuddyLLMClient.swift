@@ -14,7 +14,7 @@ public struct ListChatRoomResponse: Codable {
         public let roomID: UUID
         public let title: String
         public let messagesCount: Int
-        public let updatedAt: Date
+        public let updatedAt: String
 
         enum CodingKeys: String, CodingKey {
             case roomID = "room_id"
