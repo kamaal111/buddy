@@ -106,7 +106,7 @@ public final class Authentication: @unchecked Sendable, ObservableObject {
                 switch error {
                 case .internalServerError:
                     return .serverUnavailable(context: error)
-                case .unauthorized:
+                case .unauthorized, .badRequest:
                     Task { await unsetSession() }
                     return .unauthorized(context: error)
                 case .undocumentedError(let statusCode, let payload):

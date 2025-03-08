@@ -13,6 +13,7 @@ extension View {
         let authentication = Authentication()
 
         return self
+            .chatEnvironment()
             .authenticationEnvironment(authentication: authentication)
     }
 }

@@ -5,6 +5,7 @@
 //  Created by Kamaal M Farah on 2/9/25.
 //
 
+import Chat
 import SwiftUI
 import Authentication
 
@@ -15,6 +16,7 @@ struct BuddyApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .chatEnvironment()
                 .authenticationEnvironment(authentication: authentication)
         }
     }

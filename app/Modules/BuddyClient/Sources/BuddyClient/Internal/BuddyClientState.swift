@@ -29,9 +29,8 @@ final class BuddyClientState: @unchecked Sendable {
     }
 
     func invalidateAuthorizationToken() {
-        defer { self.authorizationToken = nil }
-
-        Keychain.delete(forKey: KeychainKeys.authorizationToken.key)
+//        Keychain.delete(forKey: KeychainKeys.authorizationToken.key)
+        self.authorizationToken = nil
     }
 
     func setAuthorizationToken(_ authorizationToken: AuthorizationToken) {

@@ -37,11 +37,12 @@ public struct BuddyAuthenticationSessionResponse: Codable, Sendable {
     }
 }
 
-public final class BuddyAuthenticationClient: Sendable, BuddyAuthorizedClientable {
+public final class BuddyAuthenticationClient: Sendable, BuddyAuthorizedClientable, BuddyClientable {
     let state: BuddyClientState
     let jsonDecoder = JSONDecoder()
     let jsonEncoder = JSONEncoder()
 
+    private let baseURL = ModuleConfig.authBaseURL
     private let client: Client
     private let logger = Logger(
         subsystem: ModuleConfig.identifier,
@@ -58,46 +59,25 @@ public final class BuddyAuthenticationClient: Sendable, BuddyAuthorizedClientabl
     }
 
     public func session() async -> Result<BuddyAuthenticationSessionResponse, BuddyAuthenticationSessionErrors> {
-        await withUpToDateAuthorizationHeaders { authorizedHeaders in
-            guard let authorizedHeaders else {
-                assertionFailure("Should only call this after being logged in")
-                state.invalidateAuthorizationToken()
+        let url = baseURL.appending(path: "session")
 
-                return .failure(.unauthorized(response: nil))
+        return await makeAuthorizedGetRequest(url: url)
+            .mapError { error in
+                switch error {
+                case let .badRequest(data):
+                    return .badRequest(data: data)
+                case let .clientError(data, response):
+                    return .undocumentedError(statusCode: response.statusCode, payload: data)
+                case .decodingError:
+                    return .internalServerError(context: error)
+                case let .unauthorized(data):
+                    state.invalidateAuthorizationToken()
+
+                    return .unauthorized(response: data)
+                case .internalServerError:
+                    return .internalServerError(context: error)
+                }
             }
-
-            let url = ModuleConfig.authBaseURL.appending(path: "session")
-            var request = URLRequest(url: url)
-            request.allHTTPHeaderFields = authorizedHeaders
-            let output: (Data, URLResponse)
-            do {
-                output = try await URLSession.shared.data(for: request)
-            } catch {
-                return .failure(.internalServerError(context: error))
-            }
-
-            let (data, response) = output
-            guard let statusCode = (response as? HTTPURLResponse)?.statusCode
-            else { return .failure(.internalServerError(context: nil)) }
-
-            switch statusCode {
-            case 422, 401:
-                state.invalidateAuthorizationToken()
-
-                return .failure(.unauthorized(response: data))
-            case let statusCode where statusCode < 300: break
-            default: return .failure(.undocumentedError(statusCode: statusCode, payload: data))
-            }
-
-            let session: BuddyAuthenticationSessionResponse
-            do {
-                session = try jsonDecoder.decode(BuddyAuthenticationSessionResponse.self, from: data)
-            } catch {
-                return .failure(.internalServerError(context: error))
-            }
-
-            return .success(session)
-        }
     }
 
     public func login(email: String, password: String) async -> Result<Void, BuddyAuthenticationLoginErrors> {
@@ -180,6 +160,7 @@ public enum BuddyAuthenticationLoginErrors: Error {
 public enum BuddyAuthenticationSessionErrors: Error {
     case internalServerError(context: Error?)
     case unauthorized(response: Data?)
+    case badRequest(data: Data)
     case undocumentedError(statusCode: Int, payload: Data)
 }
 

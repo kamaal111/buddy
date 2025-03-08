@@ -16,7 +16,7 @@ let package = Package(
         .package(path: "../BuddyClient")
     ],
     targets: [
-        .target(name: "Chat", dependencies: ["DesignSystem", "Authentication"]),
+        .target(name: "Chat", dependencies: ["DesignSystem", "Authentication", "BuddyClient"]),
         .target(name: "Authentication", dependencies: ["BuddyClient", "DesignSystem"]),
     ]
 )

@@ -7,13 +7,27 @@
 
 import Foundation
 
-protocol BuddyAuthorizedClientable {
+protocol BuddyAuthorizedClientable: BuddyClientable {
     var state: BuddyClientState { get }
     var jsonEncoder: JSONEncoder { get }
     var jsonDecoder: JSONDecoder { get }
 }
 
 extension BuddyAuthorizedClientable {
+    func makeAuthorizedGetRequest<T: Decodable>(
+        url: URL,
+        headers: [String: String] = [:]
+    ) async -> Result<T, ClientRequestError> {
+        await withUpToDateAuthorizationHeaders { authorizedHeaders in
+            var mergedHeaders = authorizedHeaders ?? [:]
+            for (key, value) in headers {
+                mergedHeaders[key] = value
+            }
+
+            return await makeGetRequest(url: url, headers: mergedHeaders)
+        }
+    }
+
     func withUpToDateAuthorizationHeaders<T>(_ callback: (_ headers: [String: String]?) async -> T) async -> T {
         await withUpToDateAuthorizationToken { authorizationToken in
             guard let authorizationToken = state.authorizationToken else { return await callback(nil) }
@@ -75,40 +89,23 @@ extension BuddyAuthorizedClientable {
     private func refresh() async -> Result<BuddyAuthenticationRefreshResponse, BuddyAuthenticationRefreshErrors> {
         guard let authorizationToken = state.authorizationToken else { return .failure(.unauthorized(response: nil)) }
 
-        let payload = try! jsonEncoder.encode(
-            BuddyAuthenticationRefreshPayload(refreshToken: authorizationToken.refreshToken)
-        )
-
         let url = ModuleConfig.authBaseURL.appending(path: "refresh")
-        var request = URLRequest(url: url)
-        request.allHTTPHeaderFields = makeAuthorizedHeaders(authorizationToken: authorizationToken)
-        request.httpBody = payload
-        request.httpMethod = "POST"
-        let output: (Data, URLResponse)
-        do {
-            output = try await URLSession.shared.data(for: request)
-        } catch {
-            return .failure(.internalServerError(context: error))
-        }
+        let payload = BuddyAuthenticationRefreshPayload(refreshToken: authorizationToken.refreshToken)
+        let headers = makeAuthorizedHeaders(authorizationToken: authorizationToken)
 
-        let (data, response) = output
-        guard let statusCode = (response as? HTTPURLResponse)?.statusCode
-        else { return .failure(.internalServerError(context: nil)) }
-
-        switch statusCode {
-        case 422, 401: return .failure(.unauthorized(response: data))
-        case let statusCode where statusCode < 300: break
-        default: return .failure(.undocumentedError(statusCode: statusCode, payload: data))
-        }
-
-        let refreshedToken: BuddyAuthenticationRefreshResponse
-        do {
-            refreshedToken = try jsonDecoder.decode(BuddyAuthenticationRefreshResponse.self, from: data)
-        } catch {
-            return .failure(.internalServerError(context: error))
-        }
-
-        return .success(refreshedToken)
+        return await makePostRequest(url: url, payload: payload, headers: headers)
+            .mapError { error in
+                switch error {
+                case let .unauthorized(data):
+                    .unauthorized(response: data)
+                case let .badRequest(data):
+                    .unauthorized(response: data)
+                case let .clientError(data, response):
+                    .undocumentedError(statusCode: response.statusCode, payload: data)
+                case .decodingError, .internalServerError:
+                    .internalServerError(context: error)
+                }
+            }
     }
 }
 
