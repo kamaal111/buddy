@@ -12,4 +12,5 @@ public struct ChatRoom: Hashable, Identifiable, Sendable {
     public let title: String
     public let messagesCount: Int
     public let updatedAt: String
+    public let messages: [ChatMessage]
 }

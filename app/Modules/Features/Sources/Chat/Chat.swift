@@ -18,6 +18,8 @@ public final class Chat: @unchecked Sendable, ObservableObject{
         didSet { Task { await selectedModelDidSet() } }
     }
     @Published private(set) var selectedRoomID: UUID?
+    @Published private(set) var selectingRoomError: ListChatMessagesErrors?
+    @Published public private(set) var selectingRoom = false
 
     private let client = BuddyClient.shared
     private let logger = Logger(subsystem: ModuleConfig.identifier, category: String(describing: Chat.self))
@@ -36,12 +38,23 @@ public final class Chat: @unchecked Sendable, ObservableObject{
         }
     }
 
+    var selectedRoom: ChatRoom? {
+        guard let selectedRoomID else { return nil }
+
+        return rooms.find(by: \.id, is: selectedRoomID)
+    }
+
+    public func selectRoom(_ room: ChatRoom) async {
+        await selectRoom(room, fetchMessages: true)
+    }
+
     func sendMessage(_ message: String) async -> Result<Void, SendMessageErrors> {
         guard let selectedModel else {
             assertionFailure("Should have a a model selected before sending a message")
             return .failure(.general(context: nil))
         }
 
+        let userMessageDate = Date.now
         let result = await client.llm.sendMessage(payload: .init(
             roomID: nil,
             llmProvider: selectedModel.provider,
@@ -66,12 +79,28 @@ public final class Chat: @unchecked Sendable, ObservableObject{
             id: response.roomID,
             title: response.title,
             messagesCount: 2,
-            updatedAt: response.date
+            updatedAt: response.updatedAt,
+            messages: [
+                .init(
+                    role: .user,
+                    content: message,
+                    date: userMessageDate.toIsoString(),
+                    llmProvider: selectedModel.provider,
+                    llmKey: selectedModel.key
+                ),
+                .init(
+                    role: .assistant,
+                    content: response.content,
+                    date: response.date,
+                    llmProvider: response.llmProvider,
+                    llmKey: response.llmKey
+                ),
+            ]
         )
         let newRooms = rooms
             .prepended(newRoom)
         await setRooms(newRooms)
-        await setSelectedRoomID(newRoom.id)
+        await selectRoom(newRoom, fetchMessages: false)
 
         return .success(())
     }
@@ -85,7 +114,8 @@ public final class Chat: @unchecked Sendable, ObservableObject{
                             id: room.roomID,
                             title: room.title,
                             messagesCount: room.messagesCount,
-                            updatedAt: room.updatedAt
+                            updatedAt: room.updatedAt,
+                            messages: []
                         )
                     }
             })
@@ -104,6 +134,97 @@ public final class Chat: @unchecked Sendable, ObservableObject{
     }
 
     @MainActor
+    func unsetSelectingRoomError() {
+        setSelectingRoomError(nil)
+    }
+
+    @MainActor
+    private func setSelectingRoomError(_ error: ListChatMessagesErrors?) {
+        selectingRoomError = error
+    }
+
+    private func withSelectingRoom<T>(_ callback: () async -> T) async -> T {
+        await setSelectingRoom(true)
+        let result = await callback()
+        await setSelectingRoom(false)
+
+        return result
+    }
+
+    @MainActor
+    private func setSelectingRoom(_ state: Bool) {
+        selectingRoom = state
+    }
+
+    private func selectRoom(_ room: ChatRoom, fetchMessages: Bool) async {
+        await withSelectingRoom {
+            if fetchMessages {
+                await fetchRoomMessages(room)
+            }
+
+            await setSelectedRoom(room)
+        }
+    }
+
+    private func fetchRoomMessages(_ room: ChatRoom) async {
+        let result = await client.llm.listChatMessages(roomID: room.id)
+            .mapError { error -> ListChatMessagesErrors in
+                switch error {
+                case .internalServerError, .undocumentedError: return .general(context: error)
+                case .unauthorized: return .unauthorized
+                case .notFound: return .notFound
+                }
+            }
+            .map { response -> [ChatMessage] in
+                response.data
+                    .compactMap { data -> ChatMessage? in
+                        guard let role = ChatMessage.Role(rawValue: data.role.rawValue) else { return nil }
+
+                        return ChatMessage(
+                            role: role,
+                            content: data.content,
+                            date: data.date,
+                            llmProvider: data.llmProvider,
+                            llmKey: data.llmKey
+                        )
+                    }
+            }
+        let messages: [ChatMessage]
+        switch result {
+        case let .failure(failure):
+            logger.error("Failed to fetch messages; error='\(failure)'")
+            await setSelectingRoomError(failure)
+            return
+        case let .success(success): messages = success
+        }
+
+        await setMessagesOnRoom(room, messages: messages)
+    }
+
+    @MainActor
+    private func setMessagesOnRoom(_ room: ChatRoom, messages: [ChatMessage]) {
+        guard let index = rooms.findIndex(by: \.id, is: room.id) else {
+            logger.warning("Failed to find room with id '\(room.id)' in rooms")
+            assertionFailure()
+            return
+        }
+
+        let now = Date.now
+        rooms[index] = ChatRoom(
+            id: room.id,
+            title: room.title,
+            messagesCount: messages.count,
+            updatedAt: room.updatedAt,
+            messages: messages
+        )
+    }
+
+    @MainActor
+    private func setSelectedRoom(_ room: ChatRoom) {
+        selectedRoomID = room.id
+    }
+
+    @MainActor
     private func selectedModelDidSet() {
         guard let selectedModel else { return }
         guard storedSelectedModel != selectedModel else { return }
@@ -115,10 +236,34 @@ public final class Chat: @unchecked Sendable, ObservableObject{
     private func setRooms(_ rooms: [ChatRoom]) {
         self.rooms = rooms
     }
+}
 
-    @MainActor
-    private func setSelectedRoomID(_ roomID: UUID) {
-        self.selectedRoomID = roomID
+enum ListChatMessagesErrors: Error, Equatable {
+    case notFound
+    case unauthorized
+    case general(context: Error?)
+
+    static func == (lhs: ListChatMessagesErrors, rhs: ListChatMessagesErrors) -> Bool {
+        switch lhs {
+        case .notFound:
+            return rhs == .notFound
+        case .unauthorized:
+            return rhs == .unauthorized
+        case let .general(lhsContext):
+            if case let .general(rhsContext) = rhs {
+                return lhsContext?.localizedDescription == rhsContext?.localizedDescription
+            }
+
+            return false
+        }
+    }
+
+    var errorDescription: String {
+        switch self {
+        case .general: NSLocalizedString("Failed to get messages.", comment: "")
+        case .notFound: NSLocalizedString("Room not found.", comment: "")
+        case .unauthorized: NSLocalizedString("Unauthorized.", comment: "")
+        }
     }
 }
 
@@ -126,7 +271,7 @@ enum SendMessageErrors: Error {
     case unauthorized
     case general(context: Error?)
 
-    var errorDescription: String? {
+    var errorDescription: String {
         switch self {
         case .unauthorized:
             return NSLocalizedString("Unauthorized.", comment: "")

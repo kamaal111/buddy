@@ -25,14 +25,35 @@ public struct ListChatRoomResponse: Codable {
     }
 }
 
+public struct ListChatMessagesResponse: Codable {
+    public let data: [ChatMessage]
+
+    public struct ChatMessage: Codable {
+        public let role: BuddyClientLLMMessageRole
+        public let llmProvider: String
+        public let llmKey: String
+        public let content: String
+        public let date: String
+
+        enum CodingKeys: String, CodingKey {
+            case role
+            case llmProvider = "llm_provider"
+            case llmKey = "llm_key"
+            case content
+            case date
+        }
+    }
+}
+
 public struct SendMessageResponse: Codable {
-    public let role: Role
+    public let role: BuddyClientLLMMessageRole
     public let content: String
     public let llmProvider: String
     public let llmKey: String
     public let date: String
     public let roomID: UUID
     public let title: String
+    public let updatedAt: String
 
     enum CodingKeys: String, CodingKey {
         case role
@@ -42,12 +63,13 @@ public struct SendMessageResponse: Codable {
         case date
         case roomID = "room_id"
         case title
+        case updatedAt = "updated_at"
     }
+}
 
-    public enum Role: String, Codable {
-        case user
-        case assistant
-    }
+public enum BuddyClientLLMMessageRole: String, Codable {
+    case user
+    case assistant
 }
 
 public final class BuddyLLMClient: Sendable, BuddyAuthorizedClientable, BuddyClientable {
@@ -73,9 +95,10 @@ public final class BuddyLLMClient: Sendable, BuddyAuthorizedClientable, BuddyCli
                 case .decodingError: return .internalServerError(context: error)
                 case let .badRequest(data): return .badRequest(response: data)
                 case let .unauthorized(data): return .unauthorized(response: data)
-                case let .clientError(_, response):
+                case let .notFound(data): return .undocumentedError(statusCode: 404, payload: data)
+                case let .clientError(data, response):
                     assert(response.statusCode >= 300)
-                    return .internalServerError(context: error)
+                    return .undocumentedError(statusCode: response.statusCode, payload: data)
                 }
 
             }
@@ -91,9 +114,30 @@ public final class BuddyLLMClient: Sendable, BuddyAuthorizedClientable, BuddyCli
                 case .decodingError: return .internalServerError(context: error)
                 case let .badRequest(data): return .badRequest(response: data)
                 case let .unauthorized(data): return .unauthorized(response: data)
-                case let .clientError(_, response):
+                case let .notFound(data): return .undocumentedError(statusCode: 404, payload: data)
+                case let .clientError(data, response):
                     assert(response.statusCode >= 300)
-                    return .internalServerError(context: error)
+                    return .undocumentedError(statusCode: response.statusCode, payload: data)
+                }
+            }
+    }
+
+    public func listChatMessages(
+        roomID: UUID
+    ) async -> Result<ListChatMessagesResponse, BuddyLLMClientListMessagesErrors> {
+        let url = baseURL.appending(path: "chats").appending(path: roomID.uuidString)
+
+        return await makeAuthorizedGetRequest(url: url)
+            .mapError { error -> BuddyLLMClientListMessagesErrors in
+                switch error {
+                case .internalServerError: return .internalServerError(context: error)
+                case .decodingError: return .internalServerError(context: error)
+                case let .notFound(data): return .notFound(response: data)
+                case let .unauthorized(data): return .unauthorized(response: data)
+                case let .badRequest(data): return .undocumentedError(statusCode: 400, payload: data)
+                case let .clientError(data, response):
+                    assert(response.statusCode >= 300)
+                    return .undocumentedError(statusCode: response.statusCode, payload: data)
                 }
             }
     }
@@ -118,6 +162,13 @@ public struct BuddyLLMClientSendMessagePayload: Encodable {
         case llmKey = "llm_key"
         case message
     }
+}
+
+public enum BuddyLLMClientListMessagesErrors: Error {
+    case internalServerError(context: Error?)
+    case undocumentedError(statusCode: Int, payload: Data)
+    case unauthorized(response: Data?)
+    case notFound(response: Data?)
 }
 
 public enum BuddyLLMClientSendMessageErrors: Error {

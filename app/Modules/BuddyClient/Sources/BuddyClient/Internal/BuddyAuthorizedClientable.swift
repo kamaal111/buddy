@@ -107,13 +107,15 @@ extension BuddyAuthorizedClientable {
             .mapError { error in
                 switch error {
                 case let .unauthorized(data):
-                    .unauthorized(response: data)
+                    return .unauthorized(response: data)
                 case let .badRequest(data):
-                    .unauthorized(response: data)
+                    return .unauthorized(response: data)
                 case let .clientError(data, response):
-                    .undocumentedError(statusCode: response.statusCode, payload: data)
+                    return .undocumentedError(statusCode: response.statusCode, payload: data)
+                case let .notFound(data):
+                    return .undocumentedError(statusCode: 404, payload: data)
                 case .decodingError, .internalServerError:
-                    .internalServerError(context: error)
+                    return .internalServerError(context: error)
                 }
             }
     }

@@ -152,6 +152,7 @@ class LLMController(LLMControllable):
                 llm_key=payload.llm_key,
                 llm_provider=payload.llm_provider,
                 title=room.title,
+                updated_at=room.updated_at,
             )
 
 

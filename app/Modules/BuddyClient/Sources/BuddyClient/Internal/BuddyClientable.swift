@@ -18,6 +18,7 @@ enum ClientRequestError: Error {
     case decodingError(data: Data, error: Error)
     case unauthorized(data: Data)
     case badRequest(data: Data)
+    case notFound(data: Data)
 }
 
 extension BuddyClientable {

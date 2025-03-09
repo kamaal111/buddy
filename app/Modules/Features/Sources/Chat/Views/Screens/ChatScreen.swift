@@ -20,9 +20,14 @@ public struct ChatScreen: View {
 
     public var body: some View {
         VStack {
-            Spacer()
+            ScrollView {
+                if let selectedRoom = chat.selectedRoom {
+                    Text(selectedRoom.title)
+                }
+            }
+            .takeSizeEagerly(alignment: .top)
             MessageTextField(message: $textFieldMessage, onSubmit: handleSubmit)
-                .disabled(chat.selectedModel == nil)
+                .disabled(messageFieldIsDisabled)
             if chat.selectedModel != nil {
                 Picker("", selection: $chat.selectedModel) {
                     ForEach(availableModels) { model in
@@ -37,10 +42,27 @@ public struct ChatScreen: View {
         .frame(minWidth: ModuleConfig.screenMinSize.width, minHeight: ModuleConfig.screenMinSize.height)
         .onAppear(perform: handleAppear)
         .toastView(toast: $toast)
+        .onChange(of: chat.selectingRoomError, handleSelectingRoomErrorChange)
+    }
+
+    private var messageFieldIsDisabled: Bool {
+        chat.selectedModel == nil || chat.selectingRoom
     }
 
     private var availableModels: [LLMModel] {
         authentication.session?.availableModels ?? []
+    }
+
+    private func handleSelectingRoomErrorChange(_ oldValue: ListChatMessagesErrors?, _ newValue: ListChatMessagesErrors?) {
+        guard let error = newValue else { return }
+
+        switch error {
+        case .unauthorized: authentication.unsetSession()
+        default: break
+        }
+
+        toast = .error(message: error.errorDescription)
+        chat.unsetSelectingRoomError()
     }
 
     private func handleAppear() {
@@ -54,7 +76,7 @@ public struct ChatScreen: View {
     }
 
     private func handleSubmit(_ message: String) async -> Bool {
-        guard chat.selectedModel != nil else { return false }
+        guard !messageFieldIsDisabled else { return false }
 
         let error: SendMessageErrors
         let result = await chat.sendMessage(message)
@@ -63,7 +85,7 @@ public struct ChatScreen: View {
         case .success: return true
         }
 
-        toast = .error(message: error.errorDescription ?? error.localizedDescription)
+        toast = .error(message: error.errorDescription)
         switch error {
         case .unauthorized: authentication.unsetSession()
         case .general: break

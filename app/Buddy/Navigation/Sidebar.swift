@@ -28,20 +28,27 @@ struct Sidebar: View {
             Section("App") {
                 Button(action: { }) {
                     Label(Screens.chat.title, systemImage: Screens.chat.imageName)
-                        .foregroundColor(.accentColor)
+                        .foregroundStyle(Color.accentColor)
                 }
                 .buttonStyle(.plain)
                 Divider()
                 ForEach(chat.rooms) { room in
-                    Button(action: { }) {
+                    Button(action: { handleSelectRoom(room) }) {
                         Text(room.title)
-                            .foregroundColor(.accentColor)
+                            .foregroundStyle(chat.selectingRoom ? Color.secondary : Color.accentColor)
                     }
                     .buttonStyle(.plain)
+                    .disabled(chat.selectingRoom)
                 }
             }
         }
         .navigationSplitViewColumnWidth(min: minWidth, ideal: idealWidth)
+    }
+
+    private func handleSelectRoom(_ room: ChatRoom) {
+        Task {
+            await chat.selectRoom(room)
+        }
     }
 
     private static let DEFAULT_MIN_WIDTH: CGFloat = 140

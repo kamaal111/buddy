@@ -4,10 +4,16 @@
     "" : {
 
     },
+    "Failed to get messages." : {
+
+    },
     "Failed to send message." : {
 
     },
     "Message Buddy" : {
+
+    },
+    "Room not found." : {
 
     },
     "Unauthorized." : {

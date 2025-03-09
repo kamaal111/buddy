@@ -74,6 +74,8 @@ public final class BuddyAuthenticationClient: Sendable, BuddyAuthorizedClientabl
                     state.invalidateAuthorizationToken()
 
                     return .unauthorized(response: data)
+                case let .notFound(data):
+                    return .undocumentedError(statusCode: 404, payload: data)
                 case .internalServerError:
                     return .internalServerError(context: error)
                 }

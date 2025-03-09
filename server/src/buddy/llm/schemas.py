@@ -48,6 +48,7 @@ class CreateChatMessageResponse(CreatedResponse, ChatRoomMessage):
     room_id: uuid.UUID
     title: str
     date: datetime
+    updated_at: datetime
 
 
 class CreateChatRoomPayload(BaseModel):
