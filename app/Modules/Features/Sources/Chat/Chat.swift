@@ -48,6 +48,11 @@ public final class Chat: @unchecked Sendable, ObservableObject{
         await selectRoom(room, fetchMessages: true)
     }
 
+    @MainActor
+    public func unsetSelectedRoom() {
+        selectedRoomID = nil
+    }
+
     func sendMessage(_ message: String) async -> Result<Void, SendMessageErrors> {
         guard let selectedModel else {
             assertionFailure("Should have a a model selected before sending a message")

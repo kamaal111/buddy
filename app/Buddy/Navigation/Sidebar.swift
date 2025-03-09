@@ -26,7 +26,7 @@ struct Sidebar: View {
     var body: some View {
         List {
             Section("App") {
-                Button(action: { }) {
+                Button(action: { chat.unsetSelectedRoom() }) {
                     Label(Screens.chat.title, systemImage: Screens.chat.imageName)
                         .foregroundStyle(Color.accentColor)
                 }
