@@ -19,6 +19,7 @@ let package = Package(
     targets: [
         .target(name: "Chat", dependencies: [
             .product(name: "KamaalExtensions", package: "KamaalSwift"),
+            .product(name: "KamaalUtils", package: "KamaalSwift"),
             "DesignSystem",
             "Authentication",
             "BuddyClient",

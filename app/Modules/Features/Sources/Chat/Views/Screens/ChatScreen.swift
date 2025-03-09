@@ -25,7 +25,7 @@ public struct ChatScreen: View {
                 .disabled(chat.selectedModel == nil)
             if chat.selectedModel != nil {
                 Picker("", selection: $chat.selectedModel) {
-                    ForEach(availableModels, id: \.self) { model in
+                    ForEach(availableModels) { model in
                         Text(model.displayName)
                             .tag(model)
                     }
@@ -35,16 +35,22 @@ public struct ChatScreen: View {
         }
         .padding(.all, .medium)
         .frame(minWidth: ModuleConfig.screenMinSize.width, minHeight: ModuleConfig.screenMinSize.height)
-        .onAppear {
-            guard !availableModels.isEmpty else { return }
-
-            chat.selectedModel = availableModels.first
-        }
+        .onAppear(perform: handleAppear)
         .toastView(toast: $toast)
     }
 
     private var availableModels: [LLMModel] {
         authentication.session?.availableModels ?? []
+    }
+
+    private func handleAppear() {
+        guard !availableModels.isEmpty else { return }
+
+        if let selectedModel = chat.selectedModel, availableModels.contains(selectedModel) {
+            return
+        }
+
+        chat.selectedModel = availableModels.first
     }
 
     private func handleSubmit(_ message: String) async -> Bool {

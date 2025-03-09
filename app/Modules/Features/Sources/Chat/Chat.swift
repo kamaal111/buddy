@@ -8,18 +8,25 @@
 import OSLog
 import Foundation
 import BuddyClient
+import KamaalUtils
 import Authentication
 import KamaalExtensions
 
 public final class Chat: @unchecked Sendable, ObservableObject{
     @Published public private(set) var rooms: [ChatRoom] = []
-    @Published var selectedModel: LLMModel?
+    @Published var selectedModel: LLMModel? {
+        didSet { Task { await selectedModelDidSet() } }
+    }
     @Published private(set) var selectedRoomID: UUID?
 
     private let client = BuddyClient.shared
     private let logger = Logger(subsystem: ModuleConfig.identifier, category: String(describing: Chat.self))
 
+    @UserDefaultsObject(key: "selectedModel")
+    private var storedSelectedModel: LLMModel?
+
     public init() {
+        selectedModel = storedSelectedModel
         Task {
             do {
                 try await listRooms().get()
@@ -94,6 +101,14 @@ public final class Chat: @unchecked Sendable, ObservableObject{
         }
 
         return .success(())
+    }
+
+    @MainActor
+    private func selectedModelDidSet() {
+        guard let selectedModel else { return }
+        guard storedSelectedModel != selectedModel else { return }
+
+        storedSelectedModel = selectedModel
     }
 
     @MainActor
