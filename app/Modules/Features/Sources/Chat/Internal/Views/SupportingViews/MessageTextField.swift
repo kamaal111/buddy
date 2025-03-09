@@ -7,6 +7,7 @@
 
 import SwiftUI
 import DesignSystem
+import KamaalExtensions
 
 struct MessageTextField: View {
     @State private var isDisabled = false
@@ -16,18 +17,30 @@ struct MessageTextField: View {
     let onSubmit: (_ message: String) async -> Bool
 
     var body: some View {
-        AppTextField(text: $message, localizedTitle: "Message Buddy", bundle: .module)
-            .onSubmit(handleSubmit)
-            .disabled(isDisabled)
+        HStack {
+            AppTextField(text: $message, localizedTitle: "Message Buddy", bundle: .module)
+                .takeWidthEagerly(alignment: .leading)
+            Button(action: handleSubmit) {
+                Image(systemName: "paperplane.fill")
+                    .foregroundStyle(submitIsDisabled ? Color.secondary : Color.accentColor)
+            }
+            .padding(.bottom, -12)
+            .disabled(submitIsDisabled)
+        }
+        .onSubmit(handleSubmit)
+        .disabled(isDisabled)
+    }
+
+    private var submitIsDisabled: Bool {
+        message.trimmingByWhitespacesAndNewLines.isEmpty
     }
 
     private func handleSubmit() {
-        let message = message.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        guard !submitIsDisabled else { return }
 
         Task {
             isDisabled = true
-            let clear = await onSubmit(message)
+            let clear = await onSubmit(message.trimmingByWhitespacesAndNewLines)
             isDisabled = false
             guard clear else { return }
 

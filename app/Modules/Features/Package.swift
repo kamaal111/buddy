@@ -12,11 +12,17 @@ let package = Package(
         .library(name: "Authentication", targets: ["Authentication"]),
     ],
     dependencies: [
+        .package(url: "https://github.com/Kamaalio/KamaalSwift", "2.3.1"..<"3.0.0"),
         .package(path: "../DesignSystem"),
         .package(path: "../BuddyClient")
     ],
     targets: [
-        .target(name: "Chat", dependencies: ["DesignSystem", "Authentication", "BuddyClient"]),
+        .target(name: "Chat", dependencies: [
+            .product(name: "KamaalExtensions", package: "KamaalSwift"),
+            "DesignSystem",
+            "Authentication",
+            "BuddyClient",
+        ]),
         .target(name: "Authentication", dependencies: ["BuddyClient", "DesignSystem"]),
     ]
 )

@@ -66,7 +66,7 @@ class ChatRoom(SQLModel, table=True):
         query = (
             select(ChatRoom)
             .where(ChatRoom.owner_id == owner_id)
-            .order_by(col(ChatRoom.updated_at).asc())
+            .order_by(col(ChatRoom.updated_at).desc())
         )
 
         return session.exec(query).all()

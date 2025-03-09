@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import KamaalExtensions
 
 protocol BuddyAuthorizedClientable: BuddyClientable {
     var state: BuddyClientState { get }
@@ -19,12 +20,21 @@ extension BuddyAuthorizedClientable {
         headers: [String: String] = [:]
     ) async -> Result<T, ClientRequestError> {
         await withUpToDateAuthorizationHeaders { authorizedHeaders in
-            var mergedHeaders = authorizedHeaders ?? [:]
-            for (key, value) in headers {
-                mergedHeaders[key] = value
-            }
+            await makeGetRequest(url: url, headers: (authorizedHeaders ?? [:]).merged(with: headers))
+        }
+    }
 
-            return await makeGetRequest(url: url, headers: mergedHeaders)
+    func makeAuthorizedPostRequest<Response: Decodable, Payload: Encodable>(
+        url: URL,
+        payload: Payload,
+        headers: [String: String] = [:]
+    ) async -> Result<Response, ClientRequestError> {
+        await withUpToDateAuthorizationHeaders { authorizedHeaders in
+            await makePostRequest(
+                url: url,
+                payload: payload,
+                headers:  (authorizedHeaders ?? [:]).merged(with: headers)
+            )
         }
     }
 

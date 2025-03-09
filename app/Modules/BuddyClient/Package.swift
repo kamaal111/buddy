@@ -13,6 +13,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-openapi-generator", "1.7.0"..<"2.0.0"),
         .package(url: "https://github.com/apple/swift-openapi-runtime", "1.8.0"..<"2.0.0"),
         .package(url: "https://github.com/apple/swift-openapi-urlsession", "1.0.2"..<"2.0.0"),
+        .package(url: "https://github.com/Kamaalio/KamaalSwift", "2.3.1"..<"3.0.0")
     ],
     targets: [
         .target(
@@ -20,6 +21,7 @@ let package = Package(
             dependencies: [
                 .product(name: "OpenAPIRuntime", package: "swift-openapi-runtime"),
                 .product(name: "OpenAPIURLSession", package: "swift-openapi-urlsession"),
+                .product(name: "KamaalExtensions", package: "KamaalSwift")
             ],
             plugins: [
                 .plugin(name: "OpenAPIGenerator", package: "swift-openapi-generator"),

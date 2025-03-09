@@ -151,6 +151,7 @@ class LLMController(LLMControllable):
                 room_id=room.id,
                 llm_key=payload.llm_key,
                 llm_provider=payload.llm_provider,
+                title=room.title,
             )
 
 

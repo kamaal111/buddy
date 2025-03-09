@@ -46,6 +46,7 @@ class ChatRoomMessage(LLMMessage):
 
 class CreateChatMessageResponse(CreatedResponse, ChatRoomMessage):
     room_id: uuid.UUID
+    title: str
     date: datetime
 
 

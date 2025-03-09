@@ -11,9 +11,10 @@ import Authentication
 
 public struct ChatScreen: View {
     @EnvironmentObject private var authentication: Authentication
+    @EnvironmentObject private var chat: Chat
 
     @State private var textFieldMessage = ""
-    @State private var selectedModel: LLMModel?
+    @State private var toast: Toast?
 
     public init() { }
 
@@ -21,8 +22,9 @@ public struct ChatScreen: View {
         VStack {
             Spacer()
             MessageTextField(message: $textFieldMessage, onSubmit: handleSubmit)
-            if selectedModel != nil {
-                Picker("", selection: $selectedModel) {
+                .disabled(chat.selectedModel == nil)
+            if chat.selectedModel != nil {
+                Picker("", selection: $chat.selectedModel) {
                     ForEach(availableModels, id: \.self) { model in
                         Text(model.displayName)
                             .tag(model)
@@ -36,17 +38,32 @@ public struct ChatScreen: View {
         .onAppear {
             guard !availableModels.isEmpty else { return }
 
-            selectedModel = availableModels.first
+            chat.selectedModel = availableModels.first
         }
+        .toastView(toast: $toast)
     }
 
     private var availableModels: [LLMModel] {
         authentication.session?.availableModels ?? []
     }
 
-    private func handleSubmit(_ message: String) -> Bool {
-        print("message", message)
-        return true
+    private func handleSubmit(_ message: String) async -> Bool {
+        guard chat.selectedModel != nil else { return false }
+
+        let error: SendMessageErrors
+        let result = await chat.sendMessage(message)
+        switch result {
+        case let .failure(failure): error = failure
+        case .success: return true
+        }
+
+        toast = .error(message: error.errorDescription ?? error.localizedDescription)
+        switch error {
+        case .unauthorized: authentication.unsetSession()
+        case .general: break
+        }
+
+        return false
     }
 }
 

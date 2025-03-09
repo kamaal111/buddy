@@ -91,13 +91,13 @@ public final class Authentication: @unchecked Sendable, ObservableObject {
     }
 
     @MainActor
-    private func setSession(_ session: LoggedInSession) {
-        self.session = session
+    public func unsetSession() {
+        session = nil
     }
 
     @MainActor
-    private func unsetSession() {
-        session = nil
+    private func setSession(_ session: LoggedInSession) {
+        self.session = session
     }
 
     private func loadSession() async -> Result<Void, LoadSessionErorrs> {
