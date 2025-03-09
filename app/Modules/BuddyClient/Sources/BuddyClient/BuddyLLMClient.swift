@@ -144,12 +144,12 @@ public final class BuddyLLMClient: Sendable, BuddyAuthorizedClientable, BuddyCli
 }
 
 public struct BuddyLLMClientSendMessagePayload: Encodable {
-    public let roomID: String?
+    public let roomID: UUID?
     public let llmProvider: String
     public let llmKey: String
     public let message: String
 
-    public init(roomID: String?, llmProvider: String, llmKey: String, message: String) {
+    public init(roomID: UUID?, llmProvider: String, llmKey: String, message: String) {
         self.roomID = roomID
         self.llmProvider = llmProvider
         self.llmKey = llmKey

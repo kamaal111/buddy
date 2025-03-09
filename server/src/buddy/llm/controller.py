@@ -82,7 +82,8 @@ class LLMController(LLMControllable):
             if room is None:
                 raise BuddyNotFoundError
 
-            return ListChatMessagesResponse(detail="OK", data=room.validated_messages())
+            messages = room.validated_messages()
+            return ListChatMessagesResponse(detail="OK", data=messages)
 
     def create_chat_message(self, payload) -> CreateChatMessageResponse:
         request_time = datetime_now_with_timezone()

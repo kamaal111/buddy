@@ -12,6 +12,8 @@ public struct ChatMessage: Hashable, Sendable {
     public let llmProvider: String
     public let llmKey: String
 
+    public var isFromUser: Bool { role == .user }
+
     public enum Role: String, Sendable {
         case user
         case assistant

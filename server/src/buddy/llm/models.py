@@ -41,7 +41,7 @@ class ChatRoom(SQLModel, table=True):
         return sorted(
             map(lambda message: ChatRoomMessage(**message), self.messages),
             key=lambda message: message.date,
-            reverse=True,
+            reverse=False,
         )
 
     def add_messages(

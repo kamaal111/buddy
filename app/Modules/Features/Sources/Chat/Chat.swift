@@ -56,7 +56,7 @@ public final class Chat: @unchecked Sendable, ObservableObject{
 
         let userMessageDate = Date.now
         let result = await client.llm.sendMessage(payload: .init(
-            roomID: nil,
+            roomID: selectedRoom?.id,
             llmProvider: selectedModel.provider,
             llmKey: selectedModel.key,
             message: message
@@ -75,27 +75,36 @@ public final class Chat: @unchecked Sendable, ObservableObject{
         case let .success(success): response = success
         }
 
+        let newMessages = [
+            ChatMessage(
+                role: .user,
+                content: message,
+                date: userMessageDate.toIsoString(),
+                llmProvider: selectedModel.provider,
+                llmKey: selectedModel.key
+            ),
+            ChatMessage(
+                role: .assistant,
+                content: response.content,
+                date: response.date,
+                llmProvider: response.llmProvider,
+                llmKey: response.llmKey
+            ),
+        ]
+
+        if let selectedRoom {
+            let messages = selectedRoom.messages.concat(newMessages)
+            await setMessagesOnRoom(selectedRoom, messages: messages)
+
+            return .success(())
+        }
+
         let newRoom = ChatRoom(
             id: response.roomID,
             title: response.title,
             messagesCount: 2,
             updatedAt: response.updatedAt,
-            messages: [
-                .init(
-                    role: .user,
-                    content: message,
-                    date: userMessageDate.toIsoString(),
-                    llmProvider: selectedModel.provider,
-                    llmKey: selectedModel.key
-                ),
-                .init(
-                    role: .assistant,
-                    content: response.content,
-                    date: response.date,
-                    llmProvider: response.llmProvider,
-                    llmKey: response.llmKey
-                ),
-            ]
+            messages: newMessages
         )
         let newRooms = rooms
             .prepended(newRoom)
@@ -209,14 +218,7 @@ public final class Chat: @unchecked Sendable, ObservableObject{
             return
         }
 
-        let now = Date.now
-        rooms[index] = ChatRoom(
-            id: room.id,
-            title: room.title,
-            messagesCount: messages.count,
-            updatedAt: room.updatedAt,
-            messages: messages
-        )
+        rooms[index] = room.setMessages(messages)
     }
 
     @MainActor

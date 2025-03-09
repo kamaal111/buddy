@@ -13,4 +13,8 @@ public struct ChatRoom: Hashable, Identifiable, Sendable {
     public let messagesCount: Int
     public let updatedAt: String
     public let messages: [ChatMessage]
+
+    public func setMessages(_ messages: [ChatMessage]) -> ChatRoom {
+        .init(id: id, title: title, messagesCount: messages.count, updatedAt: updatedAt, messages: messages)
+    }
 }

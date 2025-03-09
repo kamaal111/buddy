@@ -21,8 +21,8 @@ public struct ChatScreen: View {
     public var body: some View {
         VStack {
             ScrollView {
-                if let selectedRoom = chat.selectedRoom {
-                    Text(selectedRoom.title)
+                ForEach(chat.selectedRoom?.messages ?? [], id: \.self) { message in
+                    MessageBubble(message: message)
                 }
             }
             .takeSizeEagerly(alignment: .top)
