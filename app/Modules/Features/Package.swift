@@ -13,11 +13,13 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/Kamaalio/KamaalSwift", "2.3.1"..<"3.0.0"),
+        .package(url: "https://github.com/gonzalezreal/swift-markdown-ui", "2.4.1"..<"3.0.0"),
         .package(path: "../DesignSystem"),
         .package(path: "../BuddyClient")
     ],
     targets: [
         .target(name: "Chat", dependencies: [
+            .product(name: "MarkdownUI", package: "swift-markdown-ui"),
             .product(name: "KamaalExtensions", package: "KamaalSwift"),
             .product(name: "KamaalUtils", package: "KamaalSwift"),
             "DesignSystem",

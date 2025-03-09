@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import MarkdownUI
 import DesignSystem
 import KamaalExtensions
 
@@ -15,13 +16,13 @@ struct MessageBubble: View {
     var body: some View {
         HStack {
             if !message.isFromUser {
-                Text(message.content)
+                Markdown(message.content)
                     .padding(.all, .small)
                     .background(Color.gray.opacity(0.2))
                     .cornerRadius(.small)
                     .takeWidthEagerly(alignment: .trailing)
             } else {
-                Text(message.content)
+                Markdown(message.content)
                     .padding(.all, .small)
                     .background(Color.blue)
                     .foregroundStyle(Color.white)
