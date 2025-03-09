@@ -21,6 +21,7 @@ class __Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     refresh_tokens_per_user: int = 2
     openai_api_key: str | None = None
+    google_ai_api_key: str | None = None
 
     @property
     def tzinfo(self):

@@ -5,6 +5,7 @@ from functools import reduce
 from itertools import chain
 from typing import TYPE_CHECKING
 
+from buddy.llm.providers.google import GoogleProvider
 from buddy.llm.providers.openai import OpenAIProvider
 
 if TYPE_CHECKING:
@@ -14,7 +15,7 @@ if TYPE_CHECKING:
 
     Providers = OrderedDict[str, LLMProviderable]
 
-__PROVIDERS: list[LLMProviderable] = [OpenAIProvider()]
+__PROVIDERS: list[LLMProviderable] = [GoogleProvider(), OpenAIProvider()]
 
 
 def __reduce_provider(acc: Providers, provider: LLMProviderable) -> Providers:

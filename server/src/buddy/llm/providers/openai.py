@@ -52,7 +52,7 @@ def __reduce_model(
 _MODELS: list[LLMModel] = reduce(__reduce_model, _MODELS_MAPPED_BY_TIER.items(), [])
 
 
-class OpenAIProvider(LLMProviderable):
+class OpenAIProvider(LLMProviderable[ChatRoomMessage]):
     client: OpenAI
 
     def __init__(self):
@@ -60,6 +60,7 @@ class OpenAIProvider(LLMProviderable):
 
     def chat(self, llm_model, messages) -> ChatRoomMessage:
         assert llm_model.provider == _NAME
+        assert llm_model.key in map(lambda model: model.key, _MODELS)
 
         encoding = tiktoken.encoding_for_model(llm_model.key)
         pre_calculated_token_count = len(encoding.encode(text=messages[-1].content))
@@ -96,6 +97,9 @@ class OpenAIProvider(LLMProviderable):
             llm_provider=llm_model.provider,
             date=response_time,
         )
+
+    def transform_messages_to_native(self, messages) -> list[ChatRoomMessage]:
+        return messages
 
     def get_model_list_available_to_user(self, user) -> list[LLMModel]:
         tier = user.formatted_tier

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Generic, Protocol, TypeVar
+
+from pydantic import BaseModel
 
 from buddy.llm.schemas import ChatRoomMessage
 
@@ -9,7 +11,10 @@ if TYPE_CHECKING:
     from buddy.llm.schemas import LLMModel
 
 
-class LLMProviderable(Protocol):
+NativeMessage = TypeVar("NativeMessage", bound=BaseModel)
+
+
+class LLMProviderable(Protocol, Generic[NativeMessage]):
     def chat(
         self, llm_model: LLMModel, messages: list[ChatRoomMessage]
     ) -> ChatRoomMessage: ...
@@ -19,3 +24,7 @@ class LLMProviderable(Protocol):
     def get_name(self) -> str: ...
 
     def get_all_models(self) -> list[LLMModel]: ...
+
+    def transform_messages_to_native(
+        self, messages: list[ChatRoomMessage]
+    ) -> list[NativeMessage]: ...
