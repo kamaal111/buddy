@@ -28,6 +28,12 @@ _MODELS_MAPPED_BY_TIER: OrderedDict[UserTiers, list[LLMModel]] = OrderedDict(
                 ),
                 LLMModel(
                     provider=_NAME,
+                    key="o3-mini",
+                    display_name="GPT-o3 mini",
+                    description="GPT-o3 Mini is a small reasoning model, providing high intelligence at the same cost.",
+                ),
+                LLMModel(
+                    provider=_NAME,
                     key="gpt-4o",
                     display_name="GPT-4o",
                     description="Excels at fast, accurate, and multimodal AI interactions.",

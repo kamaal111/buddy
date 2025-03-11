@@ -23,6 +23,12 @@ _MODELS_MAPPED_BY_TIER: OrderedDict[UserTiers, list[LLMModel]] = OrderedDict(
             [
                 LLMModel(
                     provider=_NAME,
+                    key="gemini-2.0-flash-lite",
+                    display_name="Gemini 2.0 Flash-Lite",
+                    description="Lightning-fast and cheapest AI. Incredibly efficient reasoning model by Google.",
+                ),
+                LLMModel(
+                    provider=_NAME,
                     key="gemini-2.0-flash",
                     display_name="Gemini 2.0 Flash",
                     description="Lightning-fast AI. Incredibly efficient reasoning model by Google.",
