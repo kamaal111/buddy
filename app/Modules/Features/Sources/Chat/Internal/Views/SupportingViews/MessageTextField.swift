@@ -9,30 +9,63 @@ import SwiftUI
 import DesignSystem
 import KamaalExtensions
 
+private let LINE_HEIGHT: CGFloat = 17
+private let MAX_FIELD_HEIGHT: CGFloat = LINE_HEIGHT * 10
+private let FIELD_PADDING: CGFloat = 4
+
+private let SUBMIT_SHORTCUT = KeyboardShortcutConfiguration(key: .return, modifiers: .command)
+private let REGISTERED_SHORTCUTS = [
+    SUBMIT_SHORTCUT
+]
+
 struct MessageTextField: View {
     @State private var isDisabled = false
+
+    @FocusState private var isFocused: Bool
 
     @Binding var message: String
 
     let onSubmit: (_ message: String) async -> Bool
 
     var body: some View {
-        HStack {
-            AppTextField(text: $message, localizedTitle: "Message Buddy", bundle: .module)
-                .takeWidthEagerly(alignment: .leading)
-            Button(action: handleSubmit) {
-                Image(systemName: "paperplane.fill")
-                    .foregroundStyle(submitIsDisabled ? Color.secondary : Color.accentColor)
+        KeyboardShortcutView(shortcuts: REGISTERED_SHORTCUTS, onEmit: handleShortcut) {
+            HStack(alignment: .bottom) {
+                TextEditor(text: $message)
+                    .font(.system(size: LINE_HEIGHT, weight: .light))
+                    .frame(minHeight: LINE_HEIGHT, maxHeight: textFieldMaxHeight + FIELD_PADDING)
+                    .focused($isFocused)
+                    .cornerRadius(.extraSmall)
+                Button(action: handleSubmit) {
+                    Image(systemName: "paperplane.fill")
+                        .foregroundStyle(submitIsDisabled ? Color.secondary : Color.accentColor)
+                }
+                .disabled(submitIsDisabled)
             }
-            .padding(.bottom, -12)
-            .disabled(submitIsDisabled)
         }
-        .onSubmit(handleSubmit)
         .disabled(isDisabled)
     }
 
     private var submitIsDisabled: Bool {
         message.trimmingByWhitespacesAndNewLines.isEmpty
+    }
+
+    private var textFieldMaxHeight: CGFloat {
+        let lines = message.split(omittingEmptySubsequences: false, whereSeparator: \.isNewline)
+        guard !lines.isEmpty else { return LINE_HEIGHT }
+
+        let lineHeight = CGFloat(lines.count) * LINE_HEIGHT
+        guard lineHeight < MAX_FIELD_HEIGHT else { return MAX_FIELD_HEIGHT }
+        guard lineHeight > LINE_HEIGHT else { return LINE_HEIGHT }
+
+        return lineHeight
+    }
+
+    private func handleShortcut(_ shortcut: KeyboardShortcutConfiguration) {
+        guard isFocused else { return }
+
+        if shortcut == SUBMIT_SHORTCUT {
+            handleSubmit()
+        }
     }
 
     private func handleSubmit() {
