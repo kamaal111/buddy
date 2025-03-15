@@ -37,6 +37,7 @@ struct Sidebar: View {
                     Button(action: { handleSelectRoom(room) }) {
                         Text(room.title)
                             .bold()
+                            .lineLimit(1)
                             .padding(.all, .extraExtraSmall)
                             .foregroundStyle(chat.selectingRoom ? Color.secondary : Color.accentColor)
                             .invisibleFill(alignment: .leading)

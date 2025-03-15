@@ -10,4 +10,5 @@ import SwiftUI
 extension Color {
     static let toastBackground = Color("ToastBackground", bundle: .module)
     static let toastForeground = Color("ToastForeground", bundle: .module)
+    public static let textEditorBackground = Color("TextEditorBackround", bundle: .module)
 }

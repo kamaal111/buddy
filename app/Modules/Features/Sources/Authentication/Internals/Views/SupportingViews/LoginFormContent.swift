@@ -26,6 +26,7 @@ struct LoginFormContent: View {
                 errorResult: $emailError,
                 localizedTitle: "Email",
                 bundle: .module,
+                variant: .email,
                 validations: [.email(message: NSLocalizedString("Not an valid email", comment: ""))]
             )
             .focused($focusedTextfield, equals: .email)

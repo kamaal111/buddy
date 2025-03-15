@@ -19,7 +19,7 @@ class __Settings(BaseSettings):
     jwt_expire_minutes: int = 30
     timezone: TimeZoneName = TimeZoneName("UTC")
     jwt_algorithm: str = "HS256"
-    refresh_tokens_per_user: int = 2
+    refresh_tokens_per_user: int = 3
     openai_api_key: str | None = None
     google_ai_api_key: str | None = None
 

@@ -29,6 +29,7 @@ public enum AppTextFieldVariant {
     case decimals
     case numbers
     case secure
+    case email
 
     #if canImport(UIKit)
     var keyboardType: UIKeyboardType {
@@ -36,6 +37,7 @@ public enum AppTextFieldVariant {
         case .decimals: return .decimalPad
         case .numbers: return .numberPad
         case .text, .secure: return .default
+        case .email: return .emailAddress
         }
     }
     #endif
@@ -122,10 +124,10 @@ public struct AppTextField: View {
                 HStack {
                     JustStack {
                         if showPassword {
-                            TextField(title, text: $text)
+                            TextField(placeholderText, text: $text)
                                 .focused($isFocused)
                         } else {
-                            SecureField(title, text: $text)
+                            SecureField(placeholderText, text: $text)
                                 .focused($isFocused)
                         }
                     }
@@ -136,16 +138,24 @@ public struct AppTextField: View {
                 }
             } else {
                 #if canImport(UIKit)
-                TextField(title, text: $text)
+                TextField(placeholderText, text: $text)
                     .focused($isFocused)
                     .keyboardType(variant.keyboardType)
                 #else
-                TextField(title, text: $text)
+                TextField(placeholderText, text: $text)
                     .focused($isFocused)
                 #endif
             }
         })
         .onChange(of: text) { oldValue, newValue in handleValueChange(value: newValue) }
+    }
+
+    private var placeholderText: String {
+        #if canImport(UIKit)
+        return ""
+        #else
+        return title
+        #endif
     }
 
     private var validator: StringValidator {

@@ -32,8 +32,10 @@ struct MessageTextField: View {
             HStack(alignment: .bottom) {
                 TextEditor(text: $message)
                     .font(.system(size: LINE_HEIGHT, weight: .light))
-                    .frame(minHeight: LINE_HEIGHT, maxHeight: textFieldMaxHeight + FIELD_PADDING)
+                    .frame(minHeight: LINE_HEIGHT + FIELD_PADDING, maxHeight: textFieldMaxHeight + FIELD_PADDING)
                     .focused($isFocused)
+                    .scrollContentBackground(.hidden)
+                    .background(Color.textEditorBackground)
                     .cornerRadius(.extraSmall)
                 Button(action: handleSubmit) {
                     Image(systemName: "paperplane.fill")

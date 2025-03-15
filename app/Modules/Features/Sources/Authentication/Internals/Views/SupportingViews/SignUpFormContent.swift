@@ -28,10 +28,14 @@ struct SignUpFormContent: View {
                 errorResult: $emailError,
                 localizedTitle: "Email",
                 bundle: .module,
+                variant: .email,
                 validations: [.email(message: NSLocalizedString("Not an valid email", comment: ""))]
             )
             .focused($focusedTextfield, equals: .email)
             .onSubmit(handleSubmit)
+            #if canImport(UIKit)
+            .textInputAutocapitalization(.never)
+            #endif
             AppTextField(
                 text: $password,
                 errorResult: $passwordError,
