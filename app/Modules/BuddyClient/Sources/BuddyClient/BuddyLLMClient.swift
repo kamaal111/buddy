@@ -14,7 +14,7 @@ public struct ListChatRoomResponse: Codable {
         public let roomID: UUID
         public let title: String
         public let messagesCount: Int
-        public let updatedAt: String
+        @DateValue<ISO8601Strategy> public private(set) var updatedAt: Date
 
         enum CodingKeys: String, CodingKey {
             case roomID = "room_id"
@@ -33,7 +33,7 @@ public struct ListChatMessagesResponse: Codable {
         public let llmProvider: String
         public let llmKey: String
         public let content: String
-        public let date: String
+        @DateValue<ISO8601Strategy> public private(set) var date: Date
 
         enum CodingKeys: String, CodingKey {
             case role
@@ -50,10 +50,10 @@ public struct SendMessageResponse: Codable {
     public let content: String
     public let llmProvider: String
     public let llmKey: String
-    public let date: String
+    @DateValue<ISO8601Strategy> public private(set) var date: Date
     public let roomID: UUID
     public let title: String
-    public let updatedAt: String
+    @DateValue<ISO8601Strategy> public private(set) var updatedAt: Date
 
     enum CodingKeys: String, CodingKey {
         case role
@@ -74,13 +74,15 @@ public enum BuddyClientLLMMessageRole: String, Codable {
 
 public final class BuddyLLMClient: Sendable, BuddyAuthorizedClientable, BuddyClientable {
     let state: BuddyClientState
-    let jsonDecoder = JSONDecoder()
+    let jsonDecoder: JSONDecoder
     let jsonEncoder = JSONEncoder()
 
     private let baseURL = ModuleConfig.apiBaseURL.appending(path: "llm")
 
     init(state: BuddyClientState) {
         self.state = state
+
+        self.jsonDecoder = JSONDecoder()
     }
 
     public func sendMessage(

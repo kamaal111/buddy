@@ -84,7 +84,7 @@ public final class Chat: @unchecked Sendable, ObservableObject{
             ChatMessage(
                 role: .user,
                 content: message,
-                date: userMessageDate.toIsoString(),
+                date: userMessageDate,
                 llmProvider: selectedModel.provider,
                 llmKey: selectedModel.key
             ),

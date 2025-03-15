@@ -36,11 +36,20 @@ struct MessageBubble: View {
 }
 
 #Preview {
-    MessageBubble(message: .init(
-        role: .user,
-        content: "Hello",
-        date: Date.now.toIsoString(),
-        llmProvider: "openai",
-        llmKey: "gpt-4o-mini"
-    ))
+    VStack {
+        MessageBubble(message: .init(
+            role: .assistant,
+            content: "Hi, how are you?",
+            date: Date(timeIntervalSince1970: 1742053012),
+            llmProvider: "openai",
+            llmKey: "gpt-4o-mini"
+        ))
+        MessageBubble(message: .init(
+            role: .user,
+            content: "Hello, I'm doing fine thank you, how about you?",
+            date: Date(timeIntervalSince1970: 1742055012),
+            llmProvider: "openai",
+            llmKey: "gpt-4o-mini"
+        ))
+    }
 }
