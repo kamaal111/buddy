@@ -7,6 +7,7 @@
 
 import Chat
 import SwiftUI
+import DesignSystem
 
 struct Sidebar: View {
     @EnvironmentObject private var chat: Chat
@@ -35,10 +36,15 @@ struct Sidebar: View {
                 ForEach(chat.rooms) { room in
                     Button(action: { handleSelectRoom(room) }) {
                         Text(room.title)
+                            .bold()
+                            .padding(.all, .extraExtraSmall)
                             .foregroundStyle(chat.selectingRoom ? Color.secondary : Color.accentColor)
+                            .invisibleFill(alignment: .leading)
                     }
                     .buttonStyle(.plain)
                     .disabled(chat.selectingRoom)
+                    .background(roomIsSelected(room) ? Color.gray.opacity(0.2) : Color.clear)
+                    .cornerRadius(4)
                 }
             }
         }
@@ -46,9 +52,11 @@ struct Sidebar: View {
     }
 
     private func handleSelectRoom(_ room: ChatRoom) {
-        Task {
-            await chat.selectRoom(room)
-        }
+        Task { await chat.selectRoom(room) }
+    }
+
+    private func roomIsSelected(_ room: ChatRoom) -> Bool {
+        room.id == chat.selectedRoomID
     }
 
     private static let DEFAULT_MIN_WIDTH: CGFloat = 140

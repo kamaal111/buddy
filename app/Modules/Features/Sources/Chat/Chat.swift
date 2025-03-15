@@ -14,12 +14,12 @@ import KamaalExtensions
 
 public final class Chat: @unchecked Sendable, ObservableObject{
     @Published public private(set) var rooms: [ChatRoom] = []
+    @Published public private(set) var selectedRoomID: UUID?
+    @Published public private(set) var selectingRoom = false
     @Published var selectedModel: LLMModel? {
         didSet { Task { await selectedModelDidSet() } }
     }
-    @Published private(set) var selectedRoomID: UUID?
     @Published private(set) var selectingRoomError: ListChatMessagesErrors?
-    @Published public private(set) var selectingRoom = false
 
     private let client = BuddyClient.shared
     private let logger = Logger(subsystem: ModuleConfig.identifier, category: String(describing: Chat.self))
@@ -171,6 +171,8 @@ public final class Chat: @unchecked Sendable, ObservableObject{
     }
 
     private func selectRoom(_ room: ChatRoom, fetchMessages: Bool) async {
+        guard room.id != selectedRoomID else { return }
+
         await withSelectingRoom {
             if fetchMessages {
                 await fetchRoomMessages(room)

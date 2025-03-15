@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2C3547832D85D37900F4CB35 /* DesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 2C3547822D85D37900F4CB35 /* DesignSystem */; };
 		2C3658052D615FAE00387C54 /* Chat in Frameworks */ = {isa = PBXBuildFile; productRef = 2C3658042D615FAE00387C54 /* Chat */; };
 		2C3658082D624DC100387C54 /* Authentication in Frameworks */ = {isa = PBXBuildFile; productRef = 2C3658072D624DC100387C54 /* Authentication */; };
 /* End PBXBuildFile section */
@@ -48,6 +49,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2C3547832D85D37900F4CB35 /* DesignSystem in Frameworks */,
 				2C3658082D624DC100387C54 /* Authentication in Frameworks */,
 				2C3658052D615FAE00387C54 /* Chat in Frameworks */,
 			);
@@ -104,6 +106,7 @@
 			packageProductDependencies = (
 				2C3658042D615FAE00387C54 /* Chat */,
 				2C3658072D624DC100387C54 /* Authentication */,
+				2C3547822D85D37900F4CB35 /* DesignSystem */,
 			);
 			productName = Buddy;
 			productReference = 2C9B52822D59273A00FCCDE9 /* Buddy.app */;
@@ -382,6 +385,10 @@
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		2C3547822D85D37900F4CB35 /* DesignSystem */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = DesignSystem;
+		};
 		2C3658042D615FAE00387C54 /* Chat */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Chat;

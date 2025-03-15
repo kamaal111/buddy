@@ -28,6 +28,15 @@ extension View {
     public func foregroundColor(light lightModeColor: Color, dark darkModeColor: Color) -> some View {
         modifier(AdaptiveForegroundColorModifier(lightModeColor: lightModeColor, darkModeColor: darkModeColor))
     }
+
+    public func invisibleFill(alignment: Alignment = .center) -> some View {
+        takeWidthEagerly(alignment: alignment)
+            #if os(macOS)
+            .background(Color(nsColor: .separatorColor).opacity(0.01))
+            #else
+            .background(Color(uiColor: .separator).opacity(0.01))
+            #endif
+    }
 }
 
 private struct BindToFrameSize: ViewModifier {
