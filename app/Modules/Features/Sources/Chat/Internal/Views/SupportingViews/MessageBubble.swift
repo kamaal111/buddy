@@ -16,23 +16,43 @@ struct MessageBubble: View {
     var body: some View {
         HStack {
             if !message.isFromUser {
-                Markdown(message.content)
-                    .padding(.all, .small)
-                    .background(Color.gray.opacity(0.2))
-                    .cornerRadius(.small)
-                    .takeWidthEagerly(alignment: .trailing)
+                VStack(alignment: .trailing, spacing: 4) {
+                    Markdown(message.content)
+                        .padding(.all, .small)
+                        .background(Color.gray.opacity(0.2))
+                        .cornerRadius(.small)
+                    dateRecievedView
+                        .padding(.trailing, .extraSmall)
+                }
+                .takeWidthEagerly(alignment: .trailing)
             } else {
-                Markdown(message.content)
-                    .padding(.all, .small)
-                    .background(Color.blue)
-                    .foregroundStyle(Color.white)
-                    .cornerRadius(.small)
-                    .takeWidthEagerly(alignment: .leading)
-             }
-         }
-         .padding(.horizontal)
-         .padding(.vertical, .extraSmall)
+                VStack(alignment: .leading, spacing: 4) {
+                    Markdown(message.content)
+                        .padding(.all, .small)
+                        .background(Color.blue)
+                        .foregroundStyle(Color.white)
+                        .cornerRadius(.small)
+                    dateRecievedView
+                        .padding(.leading, .extraSmall)
+                }
+                .takeWidthEagerly(alignment: .leading)
+            }
+        }
+        .padding(.horizontal)
+        .padding(.vertical, .extraSmall)
     }
+
+    private var dateRecievedView: some View {
+        Text(Self.dateFormatter.string(from: message.date))
+            .font(.caption)
+            .foregroundStyle(.secondary)
+    }
+
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter
+    }()
 }
 
 #Preview {
@@ -52,4 +72,5 @@ struct MessageBubble: View {
             llmKey: "gpt-4o-mini"
         ))
     }
+    .frame(height: 200)
 }
