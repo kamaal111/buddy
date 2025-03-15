@@ -11,7 +11,19 @@ struct AppNavigation: View {
     @State private var selectedTab: Screens = .chat
 
     var body: some View {
-        NavigationSplitView(sidebar: { Sidebar() }, detail: { MainDetailView() })
+        if withSidebar {
+            NavigationSplitView(sidebar: { Sidebar() }, detail: { MainDetailView() })
+        } else {
+            AppTabView()
+        }
+    }
+
+    private var withSidebar: Bool {
+        #if os(macOS)
+        return true
+        #else
+        return UIDevice.current.userInterfaceIdiom == .pad
+        #endif
     }
 }
 

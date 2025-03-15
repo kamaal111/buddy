@@ -33,31 +33,10 @@ struct Sidebar: View {
                 }
                 .buttonStyle(.plain)
                 Divider()
-                ForEach(chat.rooms) { room in
-                    Button(action: { handleSelectRoom(room) }) {
-                        Text(room.title)
-                            .bold()
-                            .lineLimit(1)
-                            .padding(.all, .extraExtraSmall)
-                            .foregroundStyle(chat.selectingRoom ? Color.secondary : Color.accentColor)
-                            .invisibleFill(alignment: .leading)
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(chat.selectingRoom)
-                    .background(roomIsSelected(room) ? Color.gray.opacity(0.2) : Color.clear)
-                    .cornerRadius(4)
-                }
+                ChatList()
             }
         }
         .navigationSplitViewColumnWidth(min: minWidth, ideal: idealWidth)
-    }
-
-    private func handleSelectRoom(_ room: ChatRoom) {
-        Task { await chat.selectRoom(room) }
-    }
-
-    private func roomIsSelected(_ room: ChatRoom) -> Bool {
-        room.id == chat.selectedRoomID
     }
 
     private static let DEFAULT_MIN_WIDTH: CGFloat = 140
