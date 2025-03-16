@@ -18,6 +18,29 @@ JWT_SECRET_KEY := "not_so_secure_secret"
 default:
     just --list --unsorted
 
+# Build the docker image
+build:
+    docker rm -f buddy-server || true
+    docker build -t buddy-server .
+
+# Run the docker image
+run: stop
+    #!/bin/zsh
+
+    export DATABASE_HOST="host.docker.internal"
+    export DATABASE_URL="postgresql://$DATABASE_USER:$DATABASE_PASSWORD@$DATABASE_HOST:$DATABASE_PORT/$DATABASE_NAME"
+
+    docker stop buddy-server || true
+    docker run --name buddy-server -e DATABASE_URL="$DATABASE_URL" \
+        -e OPENAI_API_KEY=$OPENAI_API_KEY -e GOOGLE_AI_API_KEY=$GOOGLE_AI_API_KEY \
+        -d -p 8000:80 buddy-server
+
+stop:
+    docker stop buddy-server || true
+
+# Build and run the docker image
+run-build: build run
+
 # Run server in dev mode
 dev:
     #!/bin/zsh
@@ -69,5 +92,5 @@ install-uv:
     if ! which uv > /dev/null
     then
         echo "Installing uv"
-        curl -LsSf https://astral.sh/uv/install.sh | sh
+        curl -LsSf https://astral.sh/uv/0.6.2/install.sh | sh
     fi

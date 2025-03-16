@@ -11,10 +11,3 @@ services:
       POSTGRES_DB: buddy_db
       POSTGRES_PASSWORD: secure-password
       POSTGRES_USER: buddy-user
-
-  adminer:
-    container_name: buddy-adminer
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080

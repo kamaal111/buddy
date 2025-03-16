@@ -2,6 +2,14 @@
 default:
     just --list --unsorted
 
+# Build and run the server
+run-server:
+    just server/run-build
+
+# Stop server
+stop-server:
+    just server/stop
+
 # Run server in dev mode
 dev-server:
     just server/dev
