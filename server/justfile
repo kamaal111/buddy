@@ -18,6 +18,8 @@ JWT_SECRET_KEY := "not_so_secure_secret"
 
 DOCKER_REGISTRY := "europe-west1-docker.pkg.dev"
 
+UV_VERSION := "0.6.2"
+
 # List available commands
 default:
     just --list --unsorted
@@ -83,6 +85,9 @@ type-check:
 format:
     uv run ruff format .
 
+# Quality checks
+quality: lint type-check format
+
 # Lint code
 lint:
     uv run ruff check .
@@ -104,5 +109,5 @@ install-uv:
     if ! which uv > /dev/null
     then
         echo "Installing uv"
-        curl -LsSf https://astral.sh/uv/0.6.2/install.sh | sh
+        curl -LsSf https://astral.sh/uv/$UV_VERSION/install.sh | sh
     fi
