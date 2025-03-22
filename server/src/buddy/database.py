@@ -29,9 +29,14 @@ class Database(BaseDatabase):
         super().__init__(engine=engine)
 
 
-__database = Database()
-create_db_and_tables(__database)
+__database: Database | None = None
 
 
 async def get_database() -> Databaseable:
+    global __database
+
+    if __database is None:
+        __database = Database()
+        create_db_and_tables(__database)
+
     return __database

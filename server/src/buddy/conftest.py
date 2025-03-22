@@ -1,5 +1,4 @@
 # ruff: noqa: E402
-
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -43,7 +42,8 @@ def get_database_override(database: DatabaseForTests):
 def database():
     temporary_directory = __get_or_create_temporary_directory_if_not_exists()
     database_path = temporary_directory / f"{uuid.uuid4()}.db"
-    database = DatabaseForTests(f"sqlite:///{database_path}")
+    database_url = f"sqlite:///{database_path}"
+    database = DatabaseForTests(database_url)
     create_db_and_tables(database)
 
     try:

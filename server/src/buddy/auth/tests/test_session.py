@@ -18,10 +18,28 @@ def test_session(client, default_user_credentials, default_user_login):
     }
     assert session_json["available_models"] == [
         {
+            "provider": "google",
+            "key": "gemini-2.0-flash-lite",
+            "display_name": "Gemini 2.0 Flash-Lite",
+            "description": "Lightning-fast and cheapest AI. Incredibly efficient reasoning model by Google.",
+        },
+        {
+            "provider": "google",
+            "key": "gemini-2.0-flash",
+            "display_name": "Gemini 2.0 Flash",
+            "description": "Lightning-fast AI. Incredibly efficient reasoning model by Google.",
+        },
+        {
             "provider": "openai",
             "key": "gpt-4o-mini",
             "display_name": "GPT-4o mini",
             "description": "GPT-4o Mini is great for lightweight, fast, and cost-effective AI tasks.",
+        },
+        {
+            "provider": "openai",
+            "key": "o3-mini",
+            "display_name": "GPT-o3 mini",
+            "description": "GPT-o3 Mini is a small reasoning model, providing high intelligence at the same cost.",
         },
         {
             "provider": "openai",

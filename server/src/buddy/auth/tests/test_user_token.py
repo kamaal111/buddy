@@ -7,11 +7,13 @@ def test_user_token(database, default_user):
     with Session(database.engine) as session:
         token1 = UserToken.create(user=default_user, session=session)
         UserToken.create(user=default_user, session=session)
-        token3 = UserToken.create(user=default_user, session=session)
+        UserToken.create(user=default_user, session=session)
+        UserToken.create(user=default_user, session=session)
+        token5 = UserToken.create(user=default_user, session=session)
 
         tokens = UserToken.get_all_for_user(user=default_user, session=session)
 
-        assert len(tokens) == 2
+        assert len(tokens) == 4
         for token in tokens:
             assert not token.verify_key(token1)
 
@@ -20,4 +22,4 @@ def test_user_token(database, default_user):
         )
 
         assert token is not None
-        assert token.verify_key(token3)
+        assert token.verify_key(token5)
