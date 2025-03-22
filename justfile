@@ -30,19 +30,28 @@ push-server-image:
 test:
     just server/test
 
-quality: lint
+quality: quality-server
+
+quality-server:
+    just server/quality
 
 # Type check
 type-check:
     just server/type-check
 
-# Lint code
-lint:
+# Lint server
+lint-server:
     just server/lint
 
-# Lint and fix any issues that can be fixed automatically
-lint-fix:
+# Lint code
+lint: lint-server
+
+# Lint and fix any issues that can be fixed automatically on server
+lint-fix-server:
     just server/lint-fix
+
+# Lint and fix any issues that can be fixed automatically
+lint-fix: lint-fix-server
 
 # Format code
 format:
@@ -53,6 +62,9 @@ post-dev-container-create:
     just .devcontainer/post-create
     just bootstrap
 
-# Bootstrap project
-bootstrap:
+# Bootstrap server
+bootstrap-server:
     just server/bootstrap
+
+# Bootstrap project
+bootstrap: bootstrap-server
