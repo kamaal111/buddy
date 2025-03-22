@@ -30,6 +30,10 @@ push-server-image:
 test-server:
     just server/test
 
+# Test server with code coverage
+test-server-cov:
+    just server/test-cov
+
 # Test
 test: test-server
 
