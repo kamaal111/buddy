@@ -67,6 +67,10 @@ dev:
 test:
     uv run pytest
 
+# Test with code coverage
+test-cov:
+    uv run pytest --cov=src/buddy
+
 # Install modules
 install-modules:
     #!/bin/zsh

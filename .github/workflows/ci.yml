@@ -54,7 +54,7 @@ jobs:
 
       - name: Run tests
         run: |
-          just test-server
+          just test-server-cov
 
   pushServerImage:
     name: Push server image
