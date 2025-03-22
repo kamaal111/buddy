@@ -27,9 +27,13 @@ push-server-image:
     just server/push-image
 
 # Test server
-test:
+test-server:
     just server/test
 
+# Test
+test: test-server
+
+# Quality checks
 quality: quality-server
 
 quality-server:

@@ -10,6 +10,7 @@ concurrency:
 jobs:
   serverQuality:
     name: Server quality
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
       - name: Git - Checkout
@@ -31,13 +32,38 @@ jobs:
         run: |
           just quality-server
 
-  pushImage:
-    name: Push image
+  serverTest:
+    name: Server test
     timeout-minutes: 10
     runs-on: ubuntu-latest
+    steps:
+      - name: Git - Checkout
+        uses: actions/checkout@v4
+
+      - name: Install zsh
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zsh
+
+      - name: Install just
+        uses: taiki-e/install-action@just
+
+      - name: Bootstrap
+        run: |
+          just bootstrap-server
+
+      - name: Run tests
+        run: |
+          just test-server
+
+  pushServerImage:
+    name: Push server image
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
     needs:
       - serverQuality
-    if: github.ref == 'refs/heads/main'
+      - serverTest
     steps:
       - name: Git - Checkout
         uses: actions/checkout@v4
