@@ -62,11 +62,16 @@ class OpenAIProvider(LLMProviderable[ChatRoomMessage]):
     client: OpenAI
 
     def __init__(self):
-        self.client = OpenAI(api_key=settings.openai_api_key)
+        self.client = (
+            OpenAI(api_key=settings.openai_api_key)
+            if settings.openai_api_key is not None
+            else None
+        )
 
     def chat(self, llm_model, messages) -> ChatRoomMessage:
         assert llm_model.provider == _NAME
         assert llm_model.key in map(lambda model: model.key, _MODELS)
+        assert self.client is not None
 
         encoding = tiktoken.encoding_for_model(llm_model.key)
         pre_calculated_token_count = len(encoding.encode(text=messages[-1].content))

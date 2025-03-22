@@ -4,12 +4,13 @@ import uuid
 from datetime import datetime
 from typing import Sequence
 
-from sqlalchemy import ARRAY, JSON, Column, DateTime
+from sqlalchemy import Column, DateTime
 from sqlmodel import Field, SQLModel, Session, col, select
 
 from buddy.auth.models import User
 from buddy.exceptions import BuddyBadRequestError
 from buddy.llm.schemas import ChatRoomMessage, CreateChatRoomPayload
+from buddy.utils.database_utils import ArrayOfJSON
 from buddy.utils.datetime_utils import datetime_now_with_timezone
 
 CHAT_ROOM_MAX_TITLE_LENGTH = 255
@@ -33,7 +34,7 @@ class ChatRoom(SQLModel, table=True):
     )
     title: str = Field(min_length=1)
     messages: list = Field(
-        default_factory=list, sa_column=Column(ARRAY(JSON), nullable=False)
+        default_factory=list, sa_column=Column(ArrayOfJSON, nullable=False)
     )
     owner_id: int = Field(default=None, foreign_key=f"{User.__tablename__}.id")
 
