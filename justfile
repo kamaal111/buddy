@@ -6,6 +6,10 @@ default:
 run-server:
     just server/run-build
 
+# Build the server
+build-server:
+    just server/build
+
 # Stop server
 stop-server:
     just server/stop
@@ -14,6 +18,15 @@ stop-server:
 dev-server:
     just server/dev
 
+# Tag server image
+tag-server-image:
+    just server/tag-image
+
+# Push server image
+push-server-image:
+    just server/push-image
+
+# Test server
 test:
     just server/test
 

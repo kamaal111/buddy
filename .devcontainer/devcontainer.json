@@ -23,7 +23,9 @@
                 "tamasfe.even-better-toml",
                 "ms-python.python",
                 "charliermarsh.ruff",
-                "ms-python.mypy-type-checker"
+                "ms-python.mypy-type-checker",
+                "github.vscode-github-actions",
+                "ms-python.debugpy"
             ]
         }
     },

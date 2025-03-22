@@ -3,6 +3,8 @@ set dotenv-load
 
 PORT := "8000"
 
+APPLICATION_NAME := "buddy-server"
+
 DATABASE_USER := "buddy-user"
 DATABASE_PASSWORD := "secure-password"
 DATABASE_HOST := "db"
@@ -14,14 +16,16 @@ JWT_EXPIRE_MINUTES := "30"
 JWT_ALGORITHM := "HS256"
 JWT_SECRET_KEY := "not_so_secure_secret"
 
+DOCKER_REGISTRY := "europe-west1-docker.pkg.dev"
+
 # List available commands
 default:
     just --list --unsorted
 
 # Build the docker image
 build:
-    docker rm -f buddy-server || true
-    docker build -t buddy-server .
+    docker rm -f $APPLICATION_NAME || true
+    docker build -t $APPLICATION_NAME .
 
 # Run the docker image
 run: stop
@@ -30,16 +34,24 @@ run: stop
     export DATABASE_HOST="host.docker.internal"
     export DATABASE_URL="postgresql://$DATABASE_USER:$DATABASE_PASSWORD@$DATABASE_HOST:$DATABASE_PORT/$DATABASE_NAME"
 
-    docker stop buddy-server || true
-    docker run --name buddy-server -e DATABASE_URL="$DATABASE_URL" \
+    docker stop $APPLICATION_NAME || true
+    docker run --name $APPLICATION_NAME -e DATABASE_URL="$DATABASE_URL" \
         -e OPENAI_API_KEY=$OPENAI_API_KEY -e GOOGLE_AI_API_KEY=$GOOGLE_AI_API_KEY \
-        -d -p 8000:80 buddy-server
+        -d -p 8000:80 $APPLICATION_NAME
 
 stop:
-    docker stop buddy-server || true
+    docker stop $APPLICATION_NAME || true
 
 # Build and run the docker image
 run-build: build run
+
+# Tag the docker image
+tag-image:
+    docker tag $APPLICATION_NAME "$DOCKER_REGISTRY/$GCP_PROJECT_ID/$APPLICATION_NAME/$APPLICATION_NAME:$COMMIT_SHA"
+
+# Push the docker image
+push-image:
+    docker push "$DOCKER_REGISTRY/$GCP_PROJECT_ID/$APPLICATION_NAME/$APPLICATION_NAME:$COMMIT_SHA"
 
 # Run server in dev mode
 dev:
