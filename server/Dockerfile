@@ -9,10 +9,7 @@ COPY src uv.lock pyproject.toml README.md ./
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --no-install-project
-
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-editable
+    uv sync --no-install-project --no-dev --no-python-downloads --locked
 
 FROM python:3.13-slim-bookworm
 
