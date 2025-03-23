@@ -55,6 +55,29 @@ jobs:
       - name: Run tests
         run: |
           just test-server-cov
+  
+  buildServer:
+    name: Build server
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/main'
+    steps:
+      - name: Git - Checkout
+        uses: actions/checkout@v4
+      
+      - name: Install just
+        uses: taiki-e/install-action@just
+
+      - name: Build server
+        run: |
+          just build-server
+
+      - name: Tag image
+        env:
+          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          just tag-server-image
 
   pushServerImage:
     name: Push server image
