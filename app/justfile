@@ -1,0 +1,4 @@
+build-macos:
+    #!/bin/zsh
+
+    echo "Building macOS app"

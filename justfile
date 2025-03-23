@@ -34,6 +34,10 @@ test-server:
 test-server-cov:
     just server/test-cov
 
+# Build macOS app
+build-macos-app:
+    just app/build-macos
+
 # Test
 test: test-server
 

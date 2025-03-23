@@ -1,0 +1,26 @@
+name: macOS CI
+
+on:
+  push:
+    paths:
+      - 'app/**'
+      - '.github/workflows/macos-ci.yml'
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: macos-latest
+    steps:
+      - name: Git - Checkout
+        uses: actions/checkout@v4
+
+      - name: Install just
+        uses: taiki-e/install-action@just
+
+      - name: Build
+        run: |
+          just build-macos-app
