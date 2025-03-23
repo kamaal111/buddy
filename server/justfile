@@ -11,6 +11,7 @@ DATABASE_HOST := "db"
 DATABASE_PORT := "5432"
 DATABASE_NAME := "buddy_db"
 DATABASE_SSLMODE := "disable"
+DATABASE_DRIVER := "psycopg"
 
 JWT_EXPIRE_MINUTES := "30"
 JWT_ALGORITHM := "HS256"
@@ -34,7 +35,7 @@ run: stop
     #!/bin/zsh
 
     export DATABASE_HOST="host.docker.internal"
-    export DATABASE_URL="postgresql://$DATABASE_USER:$DATABASE_PASSWORD@$DATABASE_HOST:$DATABASE_PORT/$DATABASE_NAME"
+    export DATABASE_URL="postgresql+$DATABASE_DRIVER://$DATABASE_USER:$DATABASE_PASSWORD@$DATABASE_HOST:$DATABASE_PORT/$DATABASE_NAME"
 
     docker stop $APPLICATION_NAME || true
     docker run --name $APPLICATION_NAME -e DATABASE_URL="$DATABASE_URL" \
@@ -59,16 +60,16 @@ push-image:
 dev:
     #!/bin/zsh
 
-    export DATABASE_URL="postgresql://$DATABASE_USER:$DATABASE_PASSWORD@$DATABASE_HOST:$DATABASE_PORT/$DATABASE_NAME?sslmode=$SSLMODE"
+    export DATABASE_URL="postgresql+$DATABASE_DRIVER://$DATABASE_USER:$DATABASE_PASSWORD@$DATABASE_HOST:$DATABASE_PORT/$DATABASE_NAME"
 
     uv run uvicorn src.buddy.main:app --reload --host 0.0.0.0 --port $PORT
 
 # Test
-test:
+test: prepare-testing
     uv run pytest
 
 # Test with code coverage
-test-cov:
+test-cov: prepare-testing
     uv run pytest --cov=src/buddy
 
 # Install modules
@@ -105,6 +106,13 @@ prepare: install-modules
 
 # Bootstrap project
 bootstrap: install-uv prepare
+
+# Prepare testing environment
+prepare-testing:
+    #!/bin/zsh
+
+    POSTGRES_VERSION=$(cat .postgres-version)
+    docker pull postgres:$POSTGRES_VERSION
 
 [private]
 install-uv:

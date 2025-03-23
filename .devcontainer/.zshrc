@@ -27,3 +27,5 @@ fi
 
 alias pn=pnpm
 alias pnx=pnpm exec
+
+export TC_HOST=host.docker.internal

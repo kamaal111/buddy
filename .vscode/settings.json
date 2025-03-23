@@ -7,6 +7,7 @@
         "server"
     ],
     "python.testing.unittestEnabled": false,
+    "python.defaultInterpreterPath": "server/.venv/bin/python",
     "python.testing.pytestEnabled": true,
     "cSpell.words": [
         "Databaseable",

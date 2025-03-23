@@ -1,34 +1,47 @@
 # ruff: noqa: E402
+import os
 from pathlib import Path
 
 from dotenv import load_dotenv
 
-env_found = load_dotenv((Path(__file__).parent / "../../.env.testing"))
+project_root = Path(__file__).parent.parent.parent
+env_found = load_dotenv(project_root / ".env.testing")
 
 assert env_found
 
 
-import uuid
 from http import HTTPStatus
 from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 from sqlmodel import Session, create_engine, select
+from testcontainers.postgres import PostgresContainer  # type: ignore
 
 from buddy.auth.models import User
 from buddy.auth.schemas import LoginResponse, UserPayload
-from buddy.database import BaseDatabase, create_db_and_tables, get_database
+from buddy.database import (
+    BaseDatabase,
+    Databaseable,
+    create_db_and_tables,
+    get_database,
+)
 from buddy.main import app
+
+postgres_port = 5432
+postgres_version = (project_root / Path(".postgres-version")).read_text().strip()
+postgres_driver = os.getenv("DATABASE_DRIVER")
+
+assert postgres_driver is not None
+
+postgres = PostgresContainer(
+    f"postgres:{postgres_version}", port=postgres_port, driver=postgres_driver
+)
 
 
 class DatabaseForTests(BaseDatabase):
-    def __init__(self, database_name: str) -> None:
-        super().__init__(
-            create_engine(
-                database_name, connect_args={"check_same_thread": False}, echo=False
-            )
-        )
+    def __init__(self, database_url: str) -> None:
+        super().__init__(create_engine(database_url, echo=False))
 
 
 def get_database_override(database: DatabaseForTests):
@@ -38,27 +51,30 @@ def get_database_override(database: DatabaseForTests):
     return override
 
 
-@pytest.fixture
-def database():
-    temporary_directory = __get_or_create_temporary_directory_if_not_exists()
-    database_path = temporary_directory / f"{uuid.uuid4()}.db"
-    database_url = f"sqlite:///{database_path}"
+@pytest.fixture(scope="session")
+def database(request: pytest.FixtureRequest):
+    postgres.start()
+
+    database_url = f"postgresql+{postgres_driver}://{postgres.username}:{postgres.password}@{postgres.get_container_host_ip()}:{postgres.get_exposed_port(postgres_port)}/{postgres.dbname}"
+
+    def teardown():
+        postgres.stop()
+
+    request.addfinalizer(teardown)
+
     database = DatabaseForTests(database_url)
     create_db_and_tables(database)
 
-    try:
-        yield database
-    finally:
-        database_path.unlink()
+    yield database
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def default_user_credentials():
     yield UserPayload(email="yami@bulls.io", password="nice_password")
 
 
-@pytest.fixture
-def default_user(database, default_user_credentials):
+@pytest.fixture(scope="session")
+def default_user(database: Databaseable, default_user_credentials: UserPayload):
     with Session(database.engine) as session:
         query = select(User).where(User.email == default_user_credentials.email)
         if user := session.exec(query).first():
@@ -67,7 +83,7 @@ def default_user(database, default_user_credentials):
         yield User.create(payload=default_user_credentials, session=session)
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def default_user_login(client, default_user, default_user_credentials) -> LoginResponse:
     login_response = client.post(
         "/app-api/v1/auth/login",
@@ -96,10 +112,3 @@ def client(database, default_user):
         yield __client
     finally:
         app.dependency_overrides.clear()
-
-
-def __get_or_create_temporary_directory_if_not_exists():
-    temporary_directory = Path("tmp")
-    temporary_directory.mkdir(parents=True, exist_ok=True)
-
-    return temporary_directory

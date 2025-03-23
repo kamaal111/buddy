@@ -66,11 +66,7 @@ class GoogleProvider(LLMProviderable[GoogleProviderNativeMessage]):
     client: genai.Client
 
     def __init__(self):
-        self.client = (
-            genai.Client(api_key=settings.google_ai_api_key)
-            if settings.google_ai_api_key is not None
-            else None
-        )
+        self.client = genai.Client(api_key=settings.google_ai_api_key)
 
     def chat(self, llm_model, messages) -> ChatRoomMessage:
         assert llm_model.provider == _NAME
