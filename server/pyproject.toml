@@ -9,7 +9,7 @@ dependencies = [
     "fastapi[standard]>=0.115.8",
     "google-genai>=1.5.0",
     "openai>=1.64.0",
-    "psycopg2-binary>=2.9.10",
+    "psycopg[binary]>=3.2.6",
     "pydantic>=2.10.6",
     "pydantic-extra-types>=2.10.2",
     "pydantic-settings>=2.7.1",
@@ -30,6 +30,7 @@ dev = [
     "pytest-xdist>=3.6.1",
     "python-dotenv>=1.0.1",
     "ruff>=0.9.6",
+    "testcontainers[postgres]>=4.9.2",
     "types-pytz>=2025.1.0.20250204",
 ]
 
