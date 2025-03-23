@@ -1,15 +1,18 @@
-name: CI
+name: Server CI
 
 on:
   push:
+    paths:
+      - 'server/**'
+      - '.github/workflows/server-ci.yml'
 
 concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  serverQuality:
-    name: Server quality
+  quality:
+    name: Quality
     timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
@@ -32,8 +35,8 @@ jobs:
         run: |
           just quality-server
 
-  serverTest:
-    name: Server test
+  test:
+    name: Test
     timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
@@ -56,8 +59,8 @@ jobs:
         run: |
           just test-server-cov
   
-  buildServer:
-    name: Build server
+  build:
+    name: Build
     timeout-minutes: 10
     runs-on: ubuntu-latest
     if: github.ref != 'refs/heads/main'
@@ -79,14 +82,14 @@ jobs:
         run: |
           just tag-server-image
 
-  pushServerImage:
-    name: Push server image
+  push:
+    name: Push
     timeout-minutes: 10
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     needs:
-      - serverQuality
-      - serverTest
+      - quality
+      - test
     steps:
       - name: Git - Checkout
         uses: actions/checkout@v4
