@@ -7,7 +7,7 @@ on:
       - '.github/workflows/macos-ci.yml'
 
 concurrency:
-  group: ${{ github.ref }}
+  group: ${{ github.ref }}-macos
   cancel-in-progress: true
 
 jobs:

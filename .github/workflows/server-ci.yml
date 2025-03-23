@@ -7,7 +7,7 @@ on:
       - '.github/workflows/server-ci.yml'
 
 concurrency:
-  group: ${{ github.ref }}
+  group: ${{ github.ref }}-server
   cancel-in-progress: true
 
 jobs:
